@@ -66,7 +66,7 @@ export const stateLabels: Record<string, string> = {
   on_hold: "On Hold",
   waiting: "Waiting",
   shipped: "Shipped",
-  idea: "Idea",
+  idea: "Future",
 };
 
 export const energyLabels: Record<string, { label: string; icon: string }> = {

@@ -10,10 +10,10 @@ import NewProjectDialog from "@/components/dialogs/NewProjectDialog";
 const states: (ProjectState | "all")[] = [
   "all",
   "active",
-  "on_hold",
   "waiting",
-  "shipped",
+  "on_hold",
   "idea",
+  "shipped",
 ];
 const types: (ProjectType | "all")[] = ["all", "code", "business", "life"];
 
@@ -118,7 +118,7 @@ export default function Projects() {
             <div key={g.state}>
               <div className="flex items-center gap-3 mb-3">
                 <div className="text-[10px] uppercase tracking-[0.25em] text-ink-500 font-mono">
-                  {stateLabels[g.state]}
+                  {g.state === "idea" ? "Future Projects" : stateLabels[g.state]}
                 </div>
                 <div className="h-px flex-1 bg-ink-800" />
                 <div className="text-[10px] font-mono text-ink-600">
