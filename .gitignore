@@ -4,6 +4,7 @@ dist-ssr
 *.local
 .env.local
 .env*.local
+*.tsbuildinfo
 
 # editor
 .vscode/*

@@ -121,7 +121,7 @@ interface StoreState {
   syncGithubActivity: (force?: boolean) => Promise<void>;
 }
 
-function uidOf() {
+function uidOf(): string | undefined {
   return useStore.getState().user?.id;
 }
 
