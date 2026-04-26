@@ -85,16 +85,23 @@ export async function ghRepoInfo(token: string, repoFullName: string) {
   return call<GhRepoDetails>(`${BASE}/repos/${repoFullName}`, token);
 }
 
-export async function ghUserCommitsSince(
+export async function ghRepoCommitsSince(
   token: string,
   repoFullName: string,
-  author: string,
-  sinceISO: string
+  sinceISO: string,
+  author?: string
 ) {
+  // Optional `author` filter uses GitHub's author=username param — note that
+  // GitHub only matches commits whose email is verified on the user's account.
+  // Leave author undefined to count every commit on the repo, which is usually
+  // what you want for a linked personal project.
+  const authorPart = author
+    ? `author=${encodeURIComponent(author)}&`
+    : "";
   return call<GhCommit[]>(
-    `${BASE}/repos/${repoFullName}/commits?author=${encodeURIComponent(
-      author
-    )}&since=${encodeURIComponent(sinceISO)}&per_page=100`,
+    `${BASE}/repos/${repoFullName}/commits?${authorPart}since=${encodeURIComponent(
+      sinceISO
+    )}&per_page=100`,
     token
   );
 }

@@ -9,6 +9,7 @@ import type {
   ProjectState,
   TaskStatus,
   DayReflection,
+  Routine,
 } from "./types";
 import { supabase } from "./supabase/client";
 import {
@@ -21,6 +22,8 @@ import {
   blockToRow,
   eventFromRow,
   reflectionFromRow,
+  routineFromRow,
+  routineToRow,
 } from "./supabase/mappers";
 import {
   seedProjects,
@@ -32,7 +35,7 @@ import {
 import {
   ghMe,
   ghRepoInfo,
-  ghUserCommitsSince,
+  ghRepoCommitsSince,
   parseGithubRepo,
   type GhUser,
 } from "./github";
@@ -51,6 +54,7 @@ interface StoreState {
   tasks: Task[];
   decisions: Decision[];
   blocks: TimeBlock[];
+  routines: Routine[];
   calendar: CalendarEvent[];
   reflections: DayReflection[];
   focusProjectId: string | null;
@@ -105,11 +109,16 @@ interface StoreState {
   // reflections
   saveReflection: (date: string, text: string) => Promise<void>;
 
+  // routines
+  addRoutine: (r: Omit<Routine, "id">) => Promise<string>;
+  updateRoutine: (id: string, patch: Partial<Routine>) => Promise<void>;
+  deleteRoutine: (id: string) => Promise<void>;
+
   // profile + integrations
   setDisplayName: (name: string) => Promise<void>;
   connectGithub: (token: string) => Promise<{ error?: string }>;
   disconnectGithub: () => Promise<void>;
-  syncGithubActivity: () => Promise<void>;
+  syncGithubActivity: (force?: boolean) => Promise<void>;
 }
 
 function uidOf() {
@@ -125,6 +134,7 @@ export const useStore = create<StoreState>()((set, get) => ({
   tasks: [],
   decisions: [],
   blocks: [],
+  routines: [],
   calendar: [],
   reflections: [],
   focusProjectId: null,
@@ -167,6 +177,7 @@ export const useStore = create<StoreState>()((set, get) => ({
       tasks: [],
       decisions: [],
       blocks: [],
+      routines: [],
       calendar: [],
       reflections: [],
       focusProjectId: null,
@@ -178,21 +189,31 @@ export const useStore = create<StoreState>()((set, get) => ({
   loadAll: async () => {
     const uid = get().user?.id;
     if (!uid) return;
-    const [projectsRes, tasksRes, decisionsRes, blocksRes, eventsRes, reflRes, profileRes] =
-      await Promise.all([
-        supabase.from("projects").select("*").order("last_touched_at", { ascending: false }),
-        supabase.from("tasks").select("*").order("created_at", { ascending: false }),
-        supabase.from("decisions").select("*").order("date", { ascending: false }),
-        supabase.from("time_blocks").select("*, time_block_tasks(task_id)").order("date", { ascending: true }),
-        supabase.from("calendar_events").select("*").order("date", { ascending: true }),
-        supabase.from("reflections").select("*").order("date", { ascending: false }),
-        supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle(),
-      ]);
+    const [
+      projectsRes,
+      tasksRes,
+      decisionsRes,
+      blocksRes,
+      routinesRes,
+      eventsRes,
+      reflRes,
+      profileRes,
+    ] = await Promise.all([
+      supabase.from("projects").select("*").order("last_touched_at", { ascending: false }),
+      supabase.from("tasks").select("*").order("created_at", { ascending: false }),
+      supabase.from("decisions").select("*").order("date", { ascending: false }),
+      supabase.from("time_blocks").select("*, time_block_tasks(task_id)").order("date", { ascending: true }),
+      supabase.from("routines").select("*").order("start_time", { ascending: true }),
+      supabase.from("calendar_events").select("*").order("date", { ascending: true }),
+      supabase.from("reflections").select("*").order("date", { ascending: false }),
+      supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle(),
+    ]);
     set({
       projects: (projectsRes.data ?? []).map(projectFromRow),
       tasks: (tasksRes.data ?? []).map(taskFromRow),
       decisions: (decisionsRes.data ?? []).map(decisionFromRow),
       blocks: (blocksRes.data ?? []).map(blockFromRow),
+      routines: (routinesRes.data ?? []).map(routineFromRow),
       calendar: (eventsRes.data ?? []).map(eventFromRow),
       reflections: (reflRes.data ?? []).map(reflectionFromRow),
       focusProjectId: profileRes.data?.focus_project_id ?? null,
@@ -471,6 +492,41 @@ export const useStore = create<StoreState>()((set, get) => ({
     }));
   },
 
+  // ============== ROUTINES ==============
+  addRoutine: async (r) => {
+    const uid = uidOf();
+    if (!uid) throw new Error("not authed");
+    const { data, error } = await supabase
+      .from("routines")
+      .insert({ ...routineToRow(r as Partial<Routine>), user_id: uid })
+      .select()
+      .single();
+    if (error) throw error;
+    const routine = routineFromRow(data);
+    set((s) => ({ routines: [...s.routines, routine] }));
+    return routine.id;
+  },
+
+  updateRoutine: async (id, patch) => {
+    const { data, error } = await supabase
+      .from("routines")
+      .update(routineToRow(patch))
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    const routine = routineFromRow(data);
+    set((s) => ({
+      routines: s.routines.map((r) => (r.id === id ? routine : r)),
+    }));
+  },
+
+  deleteRoutine: async (id) => {
+    const { error } = await supabase.from("routines").delete().eq("id", id);
+    if (error) throw error;
+    set((s) => ({ routines: s.routines.filter((r) => r.id !== id) }));
+  },
+
   // ============== PROFILE + INTEGRATIONS ==============
   setDisplayName: async (name) => {
     const uid = uidOf();
@@ -490,13 +546,29 @@ export const useStore = create<StoreState>()((set, get) => ({
     // validate the token by fetching /user
     try {
       const user = await ghMe(token);
-      await supabase
+      const { error } = await supabase
         .from("profiles")
         .upsert(
           { user_id: uid, github_token: token },
           { onConflict: "user_id" }
         );
+      if (error) {
+        // Most common: the github_token column doesn't exist yet.
+        if (
+          error.message.toLowerCase().includes("github_token") ||
+          error.code === "PGRST204" ||
+          error.code === "42703"
+        ) {
+          return {
+            error:
+              "Database missing github_token column. Run supabase/migration_github.sql in the Supabase SQL Editor.",
+          };
+        }
+        return { error: error.message };
+      }
       set({ githubToken: token, githubUser: user });
+      // kick off initial sync immediately
+      void get().syncGithubActivity(true);
       return {};
     } catch (err: any) {
       return { error: err?.message ?? "Failed to verify token" };
@@ -521,13 +593,14 @@ export const useStore = create<StoreState>()((set, get) => ({
     });
   },
 
-  syncGithubActivity: async () => {
+  syncGithubActivity: async (force = false) => {
     const state = get();
     const { githubToken, githubUser, projects } = state;
     if (!githubToken || !githubUser) return;
 
-    // throttle: if synced in the last 5 min, skip
+    // throttle: if synced in the last 5 min, skip (unless forced)
     if (
+      !force &&
       state.githubLastSyncedAt &&
       Date.now() - state.githubLastSyncedAt < 5 * 60 * 1000
     ) {
@@ -540,7 +613,6 @@ export const useStore = create<StoreState>()((set, get) => ({
       now.getTime() - 12 * 7 * 24 * 60 * 60 * 1000
     );
     const sinceISO = twelveWeeksAgo.toISOString();
-    const username = githubUser.login;
 
     const repoCache: typeof state.githubRepoCache = {};
     const commitCounts: Record<string, number> = {};
@@ -564,11 +636,11 @@ export const useStore = create<StoreState>()((set, get) => ({
             touchUpdates.push({ id: project.id, pushedAt: info.pushed_at });
           }
 
-          // Gather commits for the heatmap
-          const commits = await ghUserCommitsSince(
+          // Gather commits for the heatmap. No author filter — we count every
+          // commit on repos the user has explicitly linked.
+          const commits = await ghRepoCommitsSince(
             githubToken,
             repo,
-            username,
             sinceISO
           );
           commits.forEach((c) => {

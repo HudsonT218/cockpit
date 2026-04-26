@@ -42,7 +42,7 @@ export default function Modal({
             transition={{ duration: 0.15 }}
             onClick={(e) => e.stopPropagation()}
             style={{ width }}
-            className="max-w-[92vw] bg-ink-900 border border-ink-700 rounded-xl shadow-2xl shadow-black/40 overflow-hidden"
+            className="max-w-[92vw] bg-ink-900 border border-ink-700 rounded-xl shadow-2xl shadow-black/40"
           >
             <div className="flex items-center justify-between px-5 py-3 border-b border-ink-800">
               <div className="text-sm font-medium text-ink-100">{title}</div>

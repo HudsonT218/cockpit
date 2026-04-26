@@ -158,6 +158,30 @@ create table if not exists public.time_block_tasks (
 create index if not exists tbt_task_id_idx on public.time_block_tasks(task_id);
 
 -- ============================================================
+-- routines (recurring time-blocks, e.g. "Workout Mon/Wed/Fri 7-8a")
+-- ============================================================
+create table if not exists public.routines (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid not null references auth.users(id) on delete cascade,
+  project_id uuid references public.projects(id) on delete set null,
+  label text not null,
+  start_time time not null,
+  end_time time not null,
+  days_of_week int[] not null default '{}',
+  energy_tag energy_tag,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  check (end_time > start_time)
+);
+
+create index if not exists routines_user_id_idx on public.routines(user_id);
+
+drop trigger if exists routines_updated_at on public.routines;
+create trigger routines_updated_at
+  before update on public.routines
+  for each row execute function public.set_updated_at();
+
+-- ============================================================
 -- calendar_events
 --   Mix of manually-added events and cached Google Calendar pulls.
 --   external_id is the Google event id (null if added manually).
@@ -254,6 +278,7 @@ alter table public.tasks             enable row level security;
 alter table public.decisions         enable row level security;
 alter table public.time_blocks       enable row level security;
 alter table public.time_block_tasks  enable row level security;
+alter table public.routines          enable row level security;
 alter table public.calendar_events   enable row level security;
 alter table public.reflections       enable row level security;
 alter table public.profiles          enable row level security;
@@ -282,6 +307,11 @@ create policy "owner crud decisions" on public.decisions
   with check  (auth.uid() = user_id);
 
 create policy "owner crud blocks" on public.time_blocks
+  for all using (auth.uid() = user_id)
+  with check  (auth.uid() = user_id);
+
+drop policy if exists "owner crud routines" on public.routines;
+create policy "owner crud routines" on public.routines
   for all using (auth.uid() = user_id)
   with check  (auth.uid() = user_id);
 

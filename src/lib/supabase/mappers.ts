@@ -5,6 +5,7 @@ import type {
   TimeBlock,
   CalendarEvent,
   DayReflection,
+  Routine,
 } from "../types";
 
 // ---- projects ----
@@ -134,4 +135,28 @@ export function eventFromRow(r: any): CalendarEvent {
 // ---- reflections ----
 export function reflectionFromRow(r: any): DayReflection {
   return { date: r.date, text: r.text ?? "" };
+}
+
+// ---- routines ----
+export function routineFromRow(r: any): Routine {
+  return {
+    id: r.id,
+    label: r.label,
+    startTime: (r.start_time as string).slice(0, 5),
+    endTime: (r.end_time as string).slice(0, 5),
+    daysOfWeek: r.days_of_week ?? [],
+    projectId: r.project_id ?? undefined,
+    energyTag: r.energy_tag ?? undefined,
+  };
+}
+
+export function routineToRow(r: Partial<Routine>) {
+  const o: any = {};
+  if (r.label !== undefined) o.label = r.label;
+  if (r.startTime !== undefined) o.start_time = r.startTime;
+  if (r.endTime !== undefined) o.end_time = r.endTime;
+  if (r.daysOfWeek !== undefined) o.days_of_week = r.daysOfWeek;
+  if (r.projectId !== undefined) o.project_id = r.projectId || null;
+  if (r.energyTag !== undefined) o.energy_tag = r.energyTag || null;
+  return o;
 }

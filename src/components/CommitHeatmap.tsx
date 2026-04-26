@@ -74,7 +74,7 @@ export default function CommitHeatmap() {
             {syncedAgo}
           </span>
           <button
-            onClick={() => syncGithubActivity()}
+            onClick={() => syncGithubActivity(true)}
             disabled={syncing}
             title="Refresh"
             className="text-ink-500 hover:text-ink-100 transition disabled:opacity-40"

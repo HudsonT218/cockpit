@@ -74,3 +74,13 @@ export interface CalendarEvent {
   end: string;
   location?: string;
 }
+
+export interface Routine {
+  id: string;
+  label: string;
+  startTime: string; // HH:MM
+  endTime: string;
+  daysOfWeek: number[]; // 0=Sun..6=Sat
+  projectId?: string;
+  energyTag?: EnergyTag;
+}

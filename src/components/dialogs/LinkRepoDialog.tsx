@@ -17,6 +17,7 @@ export default function LinkRepoDialog({
   const githubToken = useStore((s) => s.githubToken);
   const projects = useStore((s) => s.projects);
   const updateProject = useStore((s) => s.updateProject);
+  const syncGithubActivity = useStore((s) => s.syncGithubActivity);
   const project = projects.find((p) => p.id === projectId);
 
   const [repos, setRepos] = useState<GhRepo[] | null>(null);
@@ -54,11 +55,13 @@ export default function LinkRepoDialog({
 
   const link = async (repo: GhRepo) => {
     await updateProject(projectId, { repoUrl: repo.html_url });
+    void syncGithubActivity(true);
     onClose();
   };
 
   const saveManual = async () => {
     await updateProject(projectId, { repoUrl: manualUrl || undefined });
+    void syncGithubActivity(true);
     onClose();
   };
 

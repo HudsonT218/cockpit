@@ -8,15 +8,17 @@ import {
   isoDate,
   startOfWeek,
 } from "@/lib/utils";
-import { ChevronLeft, ChevronRight, Plus, Clock } from "lucide-react";
-import type { EnergyTag, TimeBlock } from "@/lib/types";
+import { ChevronLeft, ChevronRight, Plus, Clock, Repeat } from "lucide-react";
+import type { EnergyTag, TimeBlock, Routine } from "@/lib/types";
 import NewBlockDialog from "@/components/dialogs/NewBlockDialog";
+import RoutineDialog from "@/components/dialogs/RoutineDialog";
 
 export default function Planner() {
   const blocks = useStore((s) => s.blocks);
   const tasks = useStore((s) => s.tasks);
   const projects = useStore((s) => s.projects);
   const calendar = useStore((s) => s.calendar);
+  const routines = useStore((s) => s.routines);
   const addBlock = useStore((s) => s.addBlock);
   const deleteBlock = useStore((s) => s.deleteBlock);
   const assignTaskToBlock = useStore((s) => s.assignTaskToBlock);
@@ -27,6 +29,8 @@ export default function Planner() {
   const [draggingBlock, setDraggingBlock] = useState<string | null>(null);
   const [dialogDate, setDialogDate] = useState<string | null>(null);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
+  const [routineDialogOpen, setRoutineDialogOpen] = useState(false);
+  const [editingRoutine, setEditingRoutine] = useState<Routine | null>(null);
 
   const days = useMemo(
     () => Array.from({ length: 7 }, (_, i) => addDays(weekStart, i)),
@@ -134,6 +138,10 @@ export default function Planner() {
               const dayEvents = calendar
                 .filter((e) => e.date === dateISO)
                 .sort((a, b) => a.start.localeCompare(b.start));
+              const dow = d.getDay();
+              const dayRoutines = routines
+                .filter((r) => r.daysOfWeek.includes(dow))
+                .sort((a, b) => a.startTime.localeCompare(b.startTime));
 
               return (
                 <div
@@ -240,6 +248,28 @@ export default function Planner() {
                     </div>
                   )}
 
+                  {/* Routines for this day-of-week */}
+                  {dayRoutines.length > 0 && (
+                    <div className="mb-2 space-y-1">
+                      {dayRoutines.map((r) => (
+                        <div
+                          key={r.id}
+                          onClick={() => {
+                            setEditingRoutine(r);
+                            setRoutineDialogOpen(true);
+                          }}
+                          className="text-[10px] px-2 py-1 rounded bg-accent-amber/[0.06] border border-dashed border-accent-amber/30 cursor-pointer hover:bg-accent-amber/[0.12] transition"
+                        >
+                          <div className="font-mono text-accent-amber inline-flex items-center gap-1">
+                            <Repeat className="w-2.5 h-2.5" />
+                            {r.startTime}
+                          </div>
+                          <div className="text-ink-200 truncate">{r.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {/* Blocks */}
                   <div className="space-y-1.5">
                     {dayBlocks.map((b) => {
@@ -311,6 +341,14 @@ export default function Planner() {
         }}
         date={dialogDate ?? isoDate(new Date())}
         existing={editingBlock}
+      />
+      <RoutineDialog
+        open={routineDialogOpen}
+        onClose={() => {
+          setRoutineDialogOpen(false);
+          setEditingRoutine(null);
+        }}
+        existing={editingRoutine}
       />
     </div>
   );

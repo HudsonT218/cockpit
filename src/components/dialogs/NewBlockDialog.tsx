@@ -3,6 +3,7 @@ import Modal, { FormRow, ModalActions, inputCls } from "../Modal";
 import { useStore } from "@/lib/store";
 import type { EnergyTag, TimeBlock } from "@/lib/types";
 import { energyLabels } from "@/lib/utils";
+import TimePicker from "../TimePicker";
 
 export default function NewBlockDialog({
   open,
@@ -88,20 +89,10 @@ export default function NewBlockDialog({
       </FormRow>
       <div className="grid grid-cols-2 gap-3">
         <FormRow label="Start">
-          <input
-            type="time"
-            value={start}
-            onChange={(e) => setStart(e.target.value)}
-            className={inputCls()}
-          />
+          <TimePicker value={start} onChange={setStart} />
         </FormRow>
         <FormRow label="End">
-          <input
-            type="time"
-            value={end}
-            onChange={(e) => setEnd(e.target.value)}
-            className={inputCls()}
-          />
+          <TimePicker value={end} onChange={setEnd} />
         </FormRow>
       </div>
       <div className="grid grid-cols-2 gap-3">

@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useStore } from "@/lib/store";
 import {
   addDays,
@@ -19,9 +19,11 @@ import {
   MapPin,
   CalendarDays,
 } from "lucide-react";
-import type { Task, TimeBlock, Project } from "@/lib/types";
+import type { Task, TimeBlock, Project, Routine } from "@/lib/types";
 import NewBlockDialog from "@/components/dialogs/NewBlockDialog";
+import RoutineDialog from "@/components/dialogs/RoutineDialog";
 import { Link } from "react-router-dom";
+import { Repeat } from "lucide-react";
 
 const DAY_START_HOUR = 6;
 const DAY_END_HOUR = 23;
@@ -53,6 +55,7 @@ export default function DayPlanner() {
   const tasks = useStore((s) => s.tasks);
   const projects = useStore((s) => s.projects);
   const calendar = useStore((s) => s.calendar);
+  const routines = useStore((s) => s.routines);
   const addBlock = useStore((s) => s.addBlock);
   const updateTask = useStore((s) => s.updateTask);
 
@@ -61,15 +64,38 @@ export default function DayPlanner() {
   const [draggingBlock, setDraggingBlock] = useState<string | null>(null);
   const [editingBlock, setEditingBlock] = useState<TimeBlock | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [routineDialogOpen, setRoutineDialogOpen] = useState(false);
+  const [editingRoutine, setEditingRoutine] = useState<Routine | null>(null);
   const [collapsedProjects, setCollapsedProjects] = useState<Record<string, boolean>>({});
   const timelineRef = useRef<HTMLDivElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   const todayISO = isoDate(new Date());
   const isToday = date === todayISO;
 
+  // Auto-scroll timeline to roughly show current time on mount / date change
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    const anchorMin = isToday
+      ? new Date().getHours() * 60 + new Date().getMinutes()
+      : 9 * 60; // default anchor at 9am for non-today
+    const top = ((anchorMin - DAY_START_HOUR * 60) / 60) * HOUR_HEIGHT - 120;
+    scrollRef.current.scrollTop = Math.max(0, top);
+  }, [isToday, date]);
+
   const dayBlocks = useMemo(
     () => blocks.filter((b) => b.date === date).sort((a, b) => a.start.localeCompare(b.start)),
     [blocks, date]
+  );
+
+  // Routines that match this day's day-of-week
+  const dayOfWeek = new Date(date + "T00:00").getDay();
+  const dayRoutines = useMemo(
+    () =>
+      routines
+        .filter((r) => r.daysOfWeek.includes(dayOfWeek))
+        .sort((a, b) => a.startTime.localeCompare(b.startTime)),
+    [routines, dayOfWeek]
   );
   const dayEvents = useMemo(
     () =>
@@ -100,8 +126,10 @@ export default function DayPlanner() {
           (t) =>
             t.projectId === p.id &&
             t.status !== "done" &&
-            // exclude ones already handled in carryover
-            !(t.scheduledFor && t.scheduledFor < date)
+            // exclude ones already handled in carryover (scheduled in the past)
+            !(t.scheduledFor && t.scheduledFor < date) &&
+            // exclude ones already pulled onto this day's plate
+            t.scheduledFor !== date
         ),
       }))
       .filter((g) => g.tasks.length > 0);
@@ -202,7 +230,20 @@ export default function DayPlanner() {
 
       <div className="grid grid-cols-12 gap-5">
         {/* LEFT: task pool */}
-        <aside className="col-span-12 lg:col-span-4 xl:col-span-3 space-y-4">
+        <aside className="col-span-12 lg:col-span-4 xl:col-span-3">
+          <div className="flex items-center justify-between mb-2 px-1 h-[28px]">
+            <div className="text-[10px] uppercase tracking-[0.25em] text-ink-500 font-mono">
+              Task pool
+            </div>
+            <span className="text-[10px] font-mono text-ink-600">
+              {carryover.length +
+                unscheduled.length +
+                projectGroups.reduce((n, g) => n + g.tasks.length, 0)}{" "}
+              open
+            </span>
+          </div>
+
+          <div className="space-y-4">
           {/* Carryover */}
           {carryover.length > 0 && (
             <section className="rounded-xl border border-amber-500/20 bg-amber-500/[0.03] p-4">
@@ -311,38 +352,58 @@ export default function DayPlanner() {
               })}
             </div>
           </section>
+          </div>
         </aside>
 
         {/* RIGHT: timeline */}
         <main className="col-span-12 lg:col-span-8 xl:col-span-9">
-          <div className="flex items-center justify-between mb-2 px-1">
+          <div className="flex items-center justify-between mb-2 px-1 h-[28px]">
             <div className="text-[10px] uppercase tracking-[0.25em] text-ink-500 font-mono">
               {dayBlocks.length} {dayBlocks.length === 1 ? "block" : "blocks"} ·{" "}
+              {dayRoutines.length}{" "}
+              {dayRoutines.length === 1 ? "routine" : "routines"} ·{" "}
               {dayEvents.length} {dayEvents.length === 1 ? "event" : "events"}
             </div>
-            <button
-              onClick={() => {
-                setEditingBlock(null);
-                setDialogOpen(true);
-              }}
-              className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-ink-400 hover:text-ink-100 border border-ink-800 rounded-md hover:bg-ink-800 transition"
-            >
-              <Plus className="w-3 h-3" />
-              New block
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => {
+                  setEditingRoutine(null);
+                  setRoutineDialogOpen(true);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-ink-400 hover:text-ink-100 border border-ink-800 rounded-md hover:bg-ink-800 transition"
+              >
+                <Repeat className="w-3 h-3" />
+                Routine
+              </button>
+              <button
+                onClick={() => {
+                  setEditingBlock(null);
+                  setDialogOpen(true);
+                }}
+                className="inline-flex items-center gap-1 px-2.5 py-1 text-xs text-ink-400 hover:text-ink-100 border border-ink-800 rounded-md hover:bg-ink-800 transition"
+              >
+                <Plus className="w-3 h-3" />
+                New block
+              </button>
+            </div>
           </div>
 
+          <div
+            ref={scrollRef}
+            className={cn(
+              "rounded-xl border border-ink-800 bg-ink-900/30 overflow-y-auto transition",
+              (draggingTask || draggingBlock) &&
+                "border-dashed border-accent-amber/40"
+            )}
+            style={{ maxHeight: "calc(100vh - 18rem)" }}
+          >
           <div
             ref={timelineRef}
             onDragOver={(e) => {
               if (draggingTask || draggingBlock) e.preventDefault();
             }}
             onDrop={onDropOnTimeline}
-            className={cn(
-              "relative rounded-xl border border-ink-800 bg-ink-900/30 overflow-hidden transition",
-              (draggingTask || draggingBlock) &&
-                "border-dashed border-accent-amber/40"
-            )}
+            className="relative"
             style={{ height: ((DAY_END_HOUR - DAY_START_HOUR) * HOUR_HEIGHT) }}
           >
             {/* hour rows */}
@@ -388,6 +449,53 @@ export default function DayPlanner() {
                       <MapPin className="w-2.5 h-2.5" /> {e.location}
                     </div>
                   )}
+                </div>
+              );
+            })}
+
+            {/* routines (right side, subtle bordered style) */}
+            {dayRoutines.map((r) => {
+              const startMin = timeToMinutes(r.startTime);
+              const endMin = timeToMinutes(r.endTime);
+              const top = minutesToTopPx(startMin);
+              const height = Math.max(
+                26,
+                ((endMin - startMin) / 60) * HOUR_HEIGHT
+              );
+              const proj = r.projectId
+                ? projects.find((p) => p.id === r.projectId)
+                : null;
+              return (
+                <div
+                  key={`routine-${r.id}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setEditingRoutine(r);
+                    setRoutineDialogOpen(true);
+                  }}
+                  className="absolute left-[48%] right-2 rounded-md bg-accent-amber/[0.05] border border-dashed border-accent-amber/30 px-2.5 py-1.5 cursor-pointer hover:bg-accent-amber/[0.1] hover:border-accent-amber/50 transition overflow-hidden group"
+                  style={{ top, height }}
+                >
+                  {proj && (
+                    <div
+                      className="absolute left-0 top-1 bottom-1 w-0.5 rounded-r"
+                      style={{ background: proj.accentColor }}
+                    />
+                  )}
+                  <div className="flex items-center justify-between pl-1">
+                    <span className="text-[10px] font-mono text-accent-amber inline-flex items-center gap-1">
+                      <Repeat className="w-2.5 h-2.5" />
+                      {r.startTime}–{r.endTime}
+                    </span>
+                    {r.energyTag && (
+                      <span className="text-[10px]">
+                        {energyLabels[r.energyTag].icon}
+                      </span>
+                    )}
+                  </div>
+                  <div className="text-xs text-ink-100 pl-1 line-clamp-2 leading-snug">
+                    {r.label}
+                  </div>
                 </div>
               );
             })}
@@ -451,6 +559,7 @@ export default function DayPlanner() {
               );
             })}
           </div>
+          </div>
 
           <div className="mt-3 text-[11px] text-ink-600 font-mono text-center">
             drag tasks from the left onto a time · click a block to edit · drag
@@ -467,6 +576,14 @@ export default function DayPlanner() {
         }}
         date={date}
         existing={editingBlock}
+      />
+      <RoutineDialog
+        open={routineDialogOpen}
+        onClose={() => {
+          setRoutineDialogOpen(false);
+          setEditingRoutine(null);
+        }}
+        existing={editingRoutine}
       />
     </div>
   );
