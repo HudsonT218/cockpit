@@ -395,7 +395,7 @@ export default function DayPlanner() {
           <div
             ref={scrollRef}
             className={cn(
-              "rounded-xl border border-ink-800 bg-ink-900/30 overflow-y-auto transition",
+              "rounded-xl border border-ink-800 bg-ink-900/30 overflow-y-auto transition pt-3",
               (draggingTask || draggingBlock) &&
                 "border-dashed border-accent-amber/40"
             )}
