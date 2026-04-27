@@ -16,6 +16,10 @@ interface GoogleEvent {
   start?: { date?: string; dateTime?: string; timeZone?: string };
   end?: { date?: string; dateTime?: string; timeZone?: string };
   status?: string;
+  extendedProperties?: {
+    private?: Record<string, string>;
+    shared?: Record<string, string>;
+  };
 }
 
 interface ListResponse {
@@ -58,6 +62,8 @@ function toCalendarEvent(g: GoogleEvent): CalendarEvent | null {
   if (g.status === "cancelled") return null;
   if (!g.start || !g.end) return null;
 
+  const cockpitBlockId = g.extendedProperties?.private?.cockpit_block_id;
+
   if (g.start.date) {
     return {
       id: g.id,
@@ -66,6 +72,7 @@ function toCalendarEvent(g: GoogleEvent): CalendarEvent | null {
       start: "00:00",
       end: "23:59",
       location: g.location,
+      cockpitBlockId,
     };
   }
 
@@ -81,6 +88,7 @@ function toCalendarEvent(g: GoogleEvent): CalendarEvent | null {
     start: formatLocalTime(startDt),
     end: formatLocalTime(endDt),
     location: g.location,
+    cockpitBlockId,
   };
 }
 
@@ -102,6 +110,10 @@ export interface EventInput {
   date: string; // YYYY-MM-DD
   start: string; // HH:MM
   end: string; // HH:MM
+  // If set, the event is tagged with this Cockpit block ID via Google's
+  // extendedProperties.private. Lets the sync detect orphaned events that
+  // were created by Cockpit but whose block has since been deleted.
+  blockId?: string;
 }
 
 function localDateTime(date: string, time: string): string {
@@ -119,11 +131,17 @@ function userTimeZone(): string {
 
 function eventBody(input: EventInput) {
   const tz = userTimeZone();
-  return {
+  const body: Record<string, unknown> = {
     summary: input.summary,
     start: { dateTime: localDateTime(input.date, input.start), timeZone: tz },
     end: { dateTime: localDateTime(input.date, input.end), timeZone: tz },
   };
+  if (input.blockId) {
+    body.extendedProperties = {
+      private: { cockpit_block_id: input.blockId },
+    };
+  }
+  return body;
 }
 
 export async function createEvent(

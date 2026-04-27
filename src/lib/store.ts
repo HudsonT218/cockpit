@@ -178,6 +178,7 @@ async function withFreshGoogleToken<T>(
 }
 
 function eventInputFromBlock(b: {
+  id: string;
   date: string;
   start: string;
   end: string;
@@ -188,6 +189,7 @@ function eventInputFromBlock(b: {
     date: b.date,
     start: b.start,
     end: b.end,
+    blockId: b.id,
   };
 }
 
@@ -584,6 +586,11 @@ export const useStore = create<StoreState>()((set, get) => ({
 
     if (block?.googleEventId) {
       void withFreshGoogleToken((t) => deleteEvent(t, block.googleEventId!));
+    } else if (get().googleToken) {
+      // No stored event ID (race: deleted before create finished, or block
+      // pre-dates the integration). Trigger a sync — the orphan cleanup
+      // there will catch the event by its cockpit_block_id tag.
+      setTimeout(() => void get().syncGoogleCalendar(), 1500);
     }
   },
 
@@ -831,10 +838,9 @@ export const useStore = create<StoreState>()((set, get) => ({
       return fetchEvents(accessToken, from, to);
     };
 
+    let events: CalendarEvent[];
     try {
-      const events = await tryFetch(token);
-      set({ calendar: events, googleSyncedAt: Date.now(), googleSyncing: false });
-      return;
+      events = await tryFetch(token);
     } catch (err) {
       if (!(err instanceof GoogleCalendarAuthError)) {
         // eslint-disable-next-line no-console
@@ -842,36 +848,57 @@ export const useStore = create<StoreState>()((set, get) => ({
         set({ googleSyncing: false });
         return;
       }
-    }
 
-    // Token rejected — try a refresh and retry once.
-    const newToken = await get().refreshGoogleAccessToken();
-    if (!newToken) {
-      if (typeof localStorage !== "undefined") {
-        localStorage.removeItem(GOOGLE_TOKEN_KEY);
-      }
-      set({
-        googleToken: null,
-        calendar: [],
-        googleSyncing: false,
-      });
-      return;
-    }
-
-    try {
-      const events = await tryFetch(newToken);
-      set({ calendar: events, googleSyncedAt: Date.now(), googleSyncing: false });
-    } catch (err) {
-      set({ googleSyncing: false });
-      if (err instanceof GoogleCalendarAuthError) {
+      // Token rejected — try a refresh and retry once.
+      const newToken = await get().refreshGoogleAccessToken();
+      if (!newToken) {
         if (typeof localStorage !== "undefined") {
           localStorage.removeItem(GOOGLE_TOKEN_KEY);
         }
-        set({ googleToken: null, calendar: [] });
-      } else {
-        // eslint-disable-next-line no-console
-        console.warn("[google calendar] retry failed:", err);
+        set({ googleToken: null, calendar: [], googleSyncing: false });
+        return;
       }
+
+      try {
+        events = await tryFetch(newToken);
+      } catch (err2) {
+        set({ googleSyncing: false });
+        if (err2 instanceof GoogleCalendarAuthError) {
+          if (typeof localStorage !== "undefined") {
+            localStorage.removeItem(GOOGLE_TOKEN_KEY);
+          }
+          set({ googleToken: null, calendar: [] });
+        } else {
+          // eslint-disable-next-line no-console
+          console.warn("[google calendar] retry failed:", err2);
+        }
+        return;
+      }
+    }
+
+    // Orphan cleanup: events tagged with cockpit_block_id whose block has
+    // since been deleted (or never finished syncing) get removed from local
+    // state immediately and queued for deletion from Google.
+    const blockIds = new Set(get().blocks.map((b) => b.id));
+    const orphans = events.filter(
+      (e) => e.cockpitBlockId && !blockIds.has(e.cockpitBlockId)
+    );
+    const cleanEvents = orphans.length
+      ? events.filter((e) => !e.cockpitBlockId || blockIds.has(e.cockpitBlockId))
+      : events;
+
+    set({
+      calendar: cleanEvents,
+      googleSyncedAt: Date.now(),
+      googleSyncing: false,
+    });
+
+    if (orphans.length) {
+      void (async () => {
+        for (const o of orphans) {
+          await withFreshGoogleToken((t) => deleteEvent(t, o.id));
+        }
+      })();
     }
   },
 

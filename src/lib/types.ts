@@ -74,6 +74,7 @@ export interface CalendarEvent {
   start: string;
   end: string;
   location?: string;
+  cockpitBlockId?: string;
 }
 
 export interface Routine {
