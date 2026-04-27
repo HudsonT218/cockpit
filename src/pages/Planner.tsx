@@ -162,7 +162,7 @@ export default function Planner() {
                         : "09:00";
                       const [h, m] = lastEnd.split(":").map(Number);
                       const startM = h * 60 + m + (dayBlocks.length ? 15 : 0);
-                      const endM = startM + 30;
+                      const endM = startM + 60;
                       const fmt = (mins: number) =>
                         `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(
                           mins % 60

@@ -142,7 +142,7 @@ export default function DayPlanner() {
   const scheduleTaskAt = async (taskId: string, startMin: number) => {
     // snap to 15
     startMin = Math.max(DAY_START_HOUR * 60, Math.round(startMin / 15) * 15);
-    const endMin = Math.min(DAY_END_HOUR * 60, startMin + 30);
+    const endMin = Math.min(DAY_END_HOUR * 60, startMin + 60);
     const task = tasks.find((t) => t.id === taskId);
     await addBlock({
       date,
