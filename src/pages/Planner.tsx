@@ -37,8 +37,11 @@ export default function Planner() {
     [weekStart]
   );
 
+  // Use block existence (not scheduledFor) as ground truth for "scheduled".
+  // scheduledFor can be stale; blocks are the real schedule.
+  const taskIdsOnAnyBlock = new Set(blocks.flatMap((b) => b.taskIds));
   const unscheduledTasks = tasks.filter(
-    (t) => !t.scheduledFor && t.status !== "done"
+    (t) => t.status !== "done" && !taskIdsOnAnyBlock.has(t.id)
   );
 
   return (

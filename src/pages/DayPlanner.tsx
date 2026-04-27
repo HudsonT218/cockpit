@@ -107,16 +107,39 @@ export default function DayPlanner() {
       .sort((a, b) => a.start.localeCompare(b.start));
   }, [calendar, blocks, date]);
 
+  // Task IDs actually booked into a block on this day. We use block existence
+  // as the source of truth for "on the day" instead of scheduledFor — which
+  // can be stale (left over from a deleted block before the unschedule fix
+  // shipped) and silently hide tasks from every section on the page.
+  const taskIdsOnDay = useMemo(() => {
+    const set = new Set<string>();
+    blocks.forEach((b) => {
+      if (b.date === date) b.taskIds.forEach((tid) => set.add(tid));
+    });
+    return set;
+  }, [blocks, date]);
+
   const carryover = useMemo(
     () =>
       tasks.filter(
-        (t) => t.status !== "done" && t.scheduledFor && t.scheduledFor < date
+        (t) =>
+          t.status !== "done" &&
+          t.scheduledFor &&
+          t.scheduledFor < date &&
+          !taskIdsOnDay.has(t.id)
       ),
-    [tasks, date]
+    [tasks, date, taskIdsOnDay]
   );
   const unscheduled = useMemo(
-    () => tasks.filter((t) => t.status !== "done" && !t.scheduledFor && !t.projectId),
-    [tasks]
+    () =>
+      tasks.filter(
+        (t) =>
+          t.status !== "done" &&
+          !t.projectId &&
+          !(t.scheduledFor && t.scheduledFor < date) &&
+          !taskIdsOnDay.has(t.id)
+      ),
+    [tasks, date, taskIdsOnDay]
   );
 
   const projectGroups = useMemo(() => {
@@ -130,14 +153,14 @@ export default function DayPlanner() {
           (t) =>
             t.projectId === p.id &&
             t.status !== "done" &&
-            // exclude ones already handled in carryover (scheduled in the past)
+            // past-scheduled goes to carryover instead
             !(t.scheduledFor && t.scheduledFor < date) &&
-            // exclude ones already pulled onto this day's plate
-            t.scheduledFor !== date
+            // already on a block on this day's timeline
+            !taskIdsOnDay.has(t.id)
         ),
       }))
       .filter((g) => g.tasks.length > 0);
-  }, [projects, tasks, date]);
+  }, [projects, tasks, date, taskIdsOnDay]);
 
   const scheduleTaskAt = async (taskId: string, startMin: number) => {
     // snap to 15
