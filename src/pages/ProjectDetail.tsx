@@ -61,7 +61,7 @@ export default function ProjectDetail() {
   const project = projects.find((p) => p.id === id);
   if (!project) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <Link to="/projects" className="text-ink-400">
           ← Back to projects
         </Link>

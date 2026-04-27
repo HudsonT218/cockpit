@@ -64,7 +64,7 @@ export default function Today() {
           : "Good evening";
 
   return (
-    <div className="p-8 pb-16 max-w-[1400px]">
+    <div className="p-4 md:p-8 pb-16 max-w-[1400px]">
       {/* header */}
       <div className="flex items-end justify-between mb-6">
         <div>

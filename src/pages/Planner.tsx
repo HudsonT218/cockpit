@@ -42,7 +42,7 @@ export default function Planner() {
   );
 
   return (
-    <div className="p-8 pb-16 max-w-[1600px]">
+    <div className="p-4 md:p-8 pb-16 max-w-[1600px]">
       <div className="flex items-end justify-between mb-6">
         <div>
           <div className="text-xs uppercase tracking-[0.2em] text-ink-500 font-mono mb-1">

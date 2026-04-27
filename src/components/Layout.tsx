@@ -1,4 +1,4 @@
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   FolderKanban,
@@ -9,6 +9,8 @@ import {
   Command,
   Sparkles,
   LogOut,
+  Menu,
+  X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
@@ -28,6 +30,8 @@ const navItems = [
 export default function Layout() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const location = useLocation();
   const tasks = useStore((s) => s.tasks);
   const projects = useStore((s) => s.projects);
   const user = useStore((s) => s.user);
@@ -50,10 +54,58 @@ export default function Layout() {
     return () => window.removeEventListener("keydown", onKey);
   }, []);
 
+  // Auto-close mobile drawer on route change
+  useEffect(() => {
+    setDrawerOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className="flex h-screen overflow-hidden bg-ink-950 text-ink-100">
-      <aside className="w-60 shrink-0 border-r border-ink-800/80 flex flex-col">
-        <div className="px-5 pt-6 pb-5 border-b border-ink-800/60">
+      {/* Mobile top bar (hidden on md+) */}
+      <header
+        className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-12 bg-ink-950/95 backdrop-blur border-b border-ink-800/80"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
+        <button
+          onClick={() => setDrawerOpen(true)}
+          className="p-1.5 -ml-1.5 rounded hover:bg-ink-800/50 text-ink-200 transition"
+          aria-label="Open menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-accent-amber to-accent-rose flex items-center justify-center">
+            <Sparkles className="w-3.5 h-3.5 text-white" />
+          </div>
+          <span className="text-sm font-semibold tracking-tight">Cockpit</span>
+        </div>
+        <button
+          onClick={() => setSettingsOpen(true)}
+          className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-amber to-accent-rose text-ink-950 text-[11px] font-semibold flex items-center justify-center"
+          aria-label="Settings"
+        >
+          {userLabel.slice(0, 1).toUpperCase()}
+        </button>
+      </header>
+
+      {/* Mobile drawer backdrop */}
+      {drawerOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-40 bg-black/60"
+          onClick={() => setDrawerOpen(false)}
+        />
+      )}
+
+      <aside
+        className={cn(
+          "w-60 shrink-0 border-r border-ink-800/80 flex flex-col bg-ink-950",
+          "fixed inset-y-0 left-0 z-50 transition-transform duration-200 ease-out",
+          "md:static md:translate-x-0",
+          drawerOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
+        <div className="px-5 pt-6 pb-5 border-b border-ink-800/60 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="relative flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-accent-amber to-accent-rose shadow-lg shadow-accent-amber/20">
               <Sparkles className="w-4 h-4 text-white" />
@@ -65,6 +117,14 @@ export default function Layout() {
               </div>
             </div>
           </div>
+          {/* Close button — mobile drawer only */}
+          <button
+            onClick={() => setDrawerOpen(false)}
+            className="md:hidden p-1.5 rounded hover:bg-ink-800/50 text-ink-400 transition"
+            aria-label="Close menu"
+          >
+            <X className="w-4 h-4" />
+          </button>
         </div>
 
         <nav className="flex-1 px-3 py-4 flex flex-col gap-0.5">
@@ -139,7 +199,12 @@ export default function Layout() {
         </button>
       </aside>
 
-      <main className="flex-1 overflow-y-auto relative">
+      <main
+        className="flex-1 overflow-y-auto relative pt-12 md:pt-0"
+        style={{
+          paddingBottom: "env(safe-area-inset-bottom)",
+        }}
+      >
         <Outlet />
       </main>
 

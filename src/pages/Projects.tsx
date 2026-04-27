@@ -42,7 +42,7 @@ export default function Projects() {
     .filter((g) => g.items.length > 0);
 
   return (
-    <div className="p-8 pb-16 max-w-[1400px]">
+    <div className="p-4 md:p-8 pb-16 max-w-[1400px]">
       <div className="flex items-end justify-between mb-8">
         <div>
           <div className="text-xs uppercase tracking-[0.2em] text-ink-500 font-mono mb-1">
