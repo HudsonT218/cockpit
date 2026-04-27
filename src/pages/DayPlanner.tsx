@@ -126,20 +126,15 @@ export default function DayPlanner() {
     return activeProjects
       .map((p) => ({
         project: p,
-        tasks: tasks
-          .filter(
-            (t) =>
-              t.projectId === p.id &&
-              t.status !== "done" &&
-              // exclude ones already handled in carryover (scheduled in the past)
-              !(t.scheduledFor && t.scheduledFor < date)
-          )
-          // unscheduled first, today-scheduled at the bottom (still visible)
-          .sort((a, b) => {
-            const aOnDay = a.scheduledFor === date ? 1 : 0;
-            const bOnDay = b.scheduledFor === date ? 1 : 0;
-            return aOnDay - bOnDay;
-          }),
+        tasks: tasks.filter(
+          (t) =>
+            t.projectId === p.id &&
+            t.status !== "done" &&
+            // exclude ones already handled in carryover (scheduled in the past)
+            !(t.scheduledFor && t.scheduledFor < date) &&
+            // exclude ones already pulled onto this day's plate
+            t.scheduledFor !== date
+        ),
       }))
       .filter((g) => g.tasks.length > 0);
   }, [projects, tasks, date]);
@@ -352,7 +347,6 @@ export default function DayPlanner() {
                             onEnd={() => setDraggingTask(null)}
                             compact
                             hideProject
-                            scheduledToday={t.scheduledFor === date}
                           />
                         ))}
                       </div>
@@ -635,7 +629,6 @@ function DraggableTask({
   compact = false,
   hideProject = false,
   showDate = false,
-  scheduledToday = false,
 }: {
   task: Task;
   projects: Project[];
@@ -645,7 +638,6 @@ function DraggableTask({
   compact?: boolean;
   hideProject?: boolean;
   showDate?: boolean;
-  scheduledToday?: boolean;
 }) {
   const project = task.projectId ? projects.find((p) => p.id === task.projectId) : null;
   return (
@@ -656,20 +648,13 @@ function DraggableTask({
       className={cn(
         "group text-left rounded-md border border-ink-800 bg-ink-950/60 cursor-grab active:cursor-grabbing hover:border-ink-700 transition",
         compact ? "px-2 py-1.5" : "px-2.5 py-2",
-        isDragging && "opacity-40",
-        scheduledToday && "opacity-50"
+        isDragging && "opacity-40"
       )}
-      title={scheduledToday ? "Already scheduled on the day" : undefined}
     >
       <div className="text-xs text-ink-100 leading-snug line-clamp-2">
         {task.title}
       </div>
       <div className="flex items-center gap-2 mt-0.5 text-[10px] text-ink-500 font-mono">
-        {scheduledToday && (
-          <span className="inline-flex items-center gap-0.5 text-emerald-500/80">
-            <Clock className="w-2.5 h-2.5" /> on day
-          </span>
-        )}
         {task.timeEstimate && (
           <span className="inline-flex items-center gap-0.5">
             <Clock className="w-2.5 h-2.5" /> {task.timeEstimate}m
