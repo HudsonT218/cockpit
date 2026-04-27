@@ -94,3 +94,96 @@ function formatLocalDate(d: Date): string {
 function formatLocalTime(d: Date): string {
   return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
 }
+
+// ---- writes ----
+
+export interface EventInput {
+  summary: string;
+  date: string; // YYYY-MM-DD
+  start: string; // HH:MM
+  end: string; // HH:MM
+}
+
+function localDateTime(date: string, time: string): string {
+  // Combined "YYYY-MM-DDTHH:MM:00" — Google interprets in the timeZone field.
+  return `${date}T${time}:00`;
+}
+
+function userTimeZone(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+  } catch {
+    return "UTC";
+  }
+}
+
+function eventBody(input: EventInput) {
+  const tz = userTimeZone();
+  return {
+    summary: input.summary,
+    start: { dateTime: localDateTime(input.date, input.start), timeZone: tz },
+    end: { dateTime: localDateTime(input.date, input.end), timeZone: tz },
+  };
+}
+
+export async function createEvent(
+  token: string,
+  input: EventInput
+): Promise<{ id: string }> {
+  const res = await fetch(`${API_BASE}/calendars/primary/events`, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(eventBody(input)),
+  });
+  if (res.status === 401 || res.status === 403) {
+    throw new GoogleCalendarAuthError();
+  }
+  if (!res.ok) throw new Error(`createEvent failed: ${res.status}`);
+  const data = (await res.json()) as { id: string };
+  return { id: data.id };
+}
+
+export async function updateEvent(
+  token: string,
+  eventId: string,
+  input: EventInput
+): Promise<void> {
+  const res = await fetch(
+    `${API_BASE}/calendars/primary/events/${encodeURIComponent(eventId)}`,
+    {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(eventBody(input)),
+    }
+  );
+  if (res.status === 401 || res.status === 403) {
+    throw new GoogleCalendarAuthError();
+  }
+  // 404 means event was deleted from Google directly — treat as soft success.
+  if (res.status === 404) return;
+  if (!res.ok) throw new Error(`updateEvent failed: ${res.status}`);
+}
+
+export async function deleteEvent(
+  token: string,
+  eventId: string
+): Promise<void> {
+  const res = await fetch(
+    `${API_BASE}/calendars/primary/events/${encodeURIComponent(eventId)}`,
+    {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+  if (res.status === 401 || res.status === 403) {
+    throw new GoogleCalendarAuthError();
+  }
+  if (res.status === 404 || res.status === 410) return;
+  if (!res.ok) throw new Error(`deleteEvent failed: ${res.status}`);
+}

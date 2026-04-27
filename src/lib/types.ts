@@ -59,6 +59,7 @@ export interface TimeBlock {
   energyTag?: EnergyTag;
   taskIds: string[];
   projectId?: string;
+  googleEventId?: string;
 }
 
 export interface DayReflection {

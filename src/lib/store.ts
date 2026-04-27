@@ -37,7 +37,14 @@ import {
   parseGithubRepo,
   type GhUser,
 } from "./github";
-import { fetchEvents, GoogleCalendarAuthError } from "./googleCalendar";
+import {
+  fetchEvents,
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  GoogleCalendarAuthError,
+  type EventInput,
+} from "./googleCalendar";
 
 const GOOGLE_TOKEN_KEY = "cockpit-google-token";
 const GOOGLE_EMAIL_KEY = "cockpit-google-email";
@@ -141,6 +148,49 @@ function uidOf(): string | undefined {
   return useStore.getState().user?.id;
 }
 
+// Run a Google Calendar API call with the current access token. If the token
+// is rejected, refresh once via /api/refresh-google-token and retry. Other
+// errors are swallowed with a console warning — block actions must never
+// fail just because Google is having a bad day.
+async function withFreshGoogleToken<T>(
+  fn: (token: string) => Promise<T>
+): Promise<T | null> {
+  const token = useStore.getState().googleToken;
+  if (!token) return null;
+  try {
+    return await fn(token);
+  } catch (err) {
+    if (!(err instanceof GoogleCalendarAuthError)) {
+      // eslint-disable-next-line no-console
+      console.warn("[google calendar] write failed", err);
+      return null;
+    }
+  }
+  const newToken = await useStore.getState().refreshGoogleAccessToken();
+  if (!newToken) return null;
+  try {
+    return await fn(newToken);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn("[google calendar] retry after refresh failed", err);
+    return null;
+  }
+}
+
+function eventInputFromBlock(b: {
+  date: string;
+  start: string;
+  end: string;
+  label: string;
+}): EventInput {
+  return {
+    summary: b.label,
+    date: b.date,
+    start: b.start,
+    end: b.end,
+  };
+}
+
 export const useStore = create<StoreState>()((set, get) => ({
   session: null,
   user: null,
@@ -185,7 +235,7 @@ export const useStore = create<StoreState>()((set, get) => ({
       provider: "google",
       options: {
         redirectTo: window.location.origin,
-        scopes: "https://www.googleapis.com/auth/calendar.readonly",
+        scopes: "https://www.googleapis.com/auth/calendar.events",
         queryParams: {
           access_type: "offline",
           prompt: "consent",
@@ -457,6 +507,25 @@ export const useStore = create<StoreState>()((set, get) => ({
     }
     const block: TimeBlock = { ...blockFromRow(data), taskIds: b.taskIds };
     set((s) => ({ blocks: [...s.blocks, block] }));
+
+    // Mirror to Google Calendar in the background. If it fails we keep the
+    // local block; user can retry by editing.
+    void (async () => {
+      const created = await withFreshGoogleToken((t) =>
+        createEvent(t, eventInputFromBlock(block))
+      );
+      if (!created) return;
+      await supabase
+        .from("time_blocks")
+        .update({ google_event_id: created.id })
+        .eq("id", block.id);
+      set((s) => ({
+        blocks: s.blocks.map((bl) =>
+          bl.id === block.id ? { ...bl, googleEventId: created.id } : bl
+        ),
+      }));
+    })();
+
     return block.id;
   },
 
@@ -481,12 +550,41 @@ export const useStore = create<StoreState>()((set, get) => ({
     }
     const block: TimeBlock = { ...blockFromRow(data), taskIds };
     set((s) => ({ blocks: s.blocks.map((b) => (b.id === id ? block : b)) }));
+
+    // Mirror to Google. If the block has a linked event, update it; otherwise
+    // (older block from before this feature) create one now and link it.
+    if (block.googleEventId) {
+      void withFreshGoogleToken((t) =>
+        updateEvent(t, block.googleEventId!, eventInputFromBlock(block))
+      );
+    } else if (useStore.getState().googleToken) {
+      void (async () => {
+        const created = await withFreshGoogleToken((t) =>
+          createEvent(t, eventInputFromBlock(block))
+        );
+        if (!created) return;
+        await supabase
+          .from("time_blocks")
+          .update({ google_event_id: created.id })
+          .eq("id", id);
+        set((s) => ({
+          blocks: s.blocks.map((bl) =>
+            bl.id === id ? { ...bl, googleEventId: created.id } : bl
+          ),
+        }));
+      })();
+    }
   },
 
   deleteBlock: async (id) => {
+    const block = get().blocks.find((b) => b.id === id);
     const { error } = await supabase.from("time_blocks").delete().eq("id", id);
     if (error) throw error;
     set((s) => ({ blocks: s.blocks.filter((b) => b.id !== id) }));
+
+    if (block?.googleEventId) {
+      void withFreshGoogleToken((t) => deleteEvent(t, block.googleEventId!));
+    }
   },
 
   assignTaskToBlock: async (blockId, taskId) => {

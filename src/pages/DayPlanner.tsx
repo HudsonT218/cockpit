@@ -25,8 +25,8 @@ import RoutineDialog from "@/components/dialogs/RoutineDialog";
 import { Link } from "react-router-dom";
 import { Repeat } from "lucide-react";
 
-const DAY_START_HOUR = 6;
-const DAY_END_HOUR = 23;
+const DAY_START_HOUR = 0;
+const DAY_END_HOUR = 24;
 const HOUR_HEIGHT = 64;
 const MINUTES_IN_HOURS = (DAY_END_HOUR - DAY_START_HOUR) * 60;
 
@@ -97,11 +97,15 @@ export default function DayPlanner() {
         .sort((a, b) => a.startTime.localeCompare(b.startTime)),
     [routines, dayOfWeek]
   );
-  const dayEvents = useMemo(
-    () =>
-      calendar.filter((e) => e.date === date).sort((a, b) => a.start.localeCompare(b.start)),
-    [calendar, date]
-  );
+  const dayEvents = useMemo(() => {
+    // Drop Google events that we already render as our own time blocks.
+    const blockGoogleIds = new Set(
+      blocks.map((b) => b.googleEventId).filter(Boolean) as string[]
+    );
+    return calendar
+      .filter((e) => e.date === date && !blockGoogleIds.has(e.id))
+      .sort((a, b) => a.start.localeCompare(b.start));
+  }, [calendar, blocks, date]);
 
   const carryover = useMemo(
     () =>

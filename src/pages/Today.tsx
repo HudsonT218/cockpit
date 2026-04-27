@@ -36,8 +36,13 @@ export default function Today() {
   const todayBlocks = blocks
     .filter((b) => b.date === today)
     .sort((a, b) => a.start.localeCompare(b.start));
+  // Drop Google events that are mirrors of our own time blocks — they show
+  // up in Today's Blocks already; no need to double them in Calendar.
+  const blockGoogleIds = new Set(
+    blocks.map((b) => b.googleEventId).filter(Boolean) as string[]
+  );
   const todayEvents = calendar
-    .filter((e) => e.date === today)
+    .filter((e) => e.date === today && !blockGoogleIds.has(e.id))
     .sort((a, b) => a.start.localeCompare(b.start));
   const todayTasks = tasks.filter(
     (t) => t.scheduledFor === today && t.status !== "done"

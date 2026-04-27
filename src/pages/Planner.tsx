@@ -135,8 +135,13 @@ export default function Planner() {
               const dayBlocks = blocks
                 .filter((b) => b.date === dateISO)
                 .sort((a, b) => a.start.localeCompare(b.start));
+              const blockGoogleIds = new Set(
+                dayBlocks
+                  .map((b) => b.googleEventId)
+                  .filter(Boolean) as string[]
+              );
               const dayEvents = calendar
-                .filter((e) => e.date === dateISO)
+                .filter((e) => e.date === dateISO && !blockGoogleIds.has(e.id))
                 .sort((a, b) => a.start.localeCompare(b.start));
               const dow = d.getDay();
               const dayRoutines = routines

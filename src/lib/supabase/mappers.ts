@@ -104,6 +104,7 @@ export function blockFromRow(r: any): TimeBlock {
     label: r.label,
     energyTag: r.energy_tag ?? undefined,
     projectId: r.project_id ?? undefined,
+    googleEventId: r.google_event_id ?? undefined,
     taskIds,
   };
 }
@@ -116,6 +117,7 @@ export function blockToRow(b: Partial<TimeBlock>) {
   if (b.label !== undefined) o.label = b.label;
   if (b.energyTag !== undefined) o.energy_tag = b.energyTag || null;
   if (b.projectId !== undefined) o.project_id = b.projectId || null;
+  if (b.googleEventId !== undefined) o.google_event_id = b.googleEventId || null;
   return o;
 }
 
