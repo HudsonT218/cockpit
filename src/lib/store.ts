@@ -133,7 +133,8 @@ interface StoreState {
   disconnectGithub: () => Promise<void>;
   syncGithubActivity: (force?: boolean) => Promise<void>;
   syncGoogleCalendar: () => Promise<void>;
-  disconnectGoogleCalendar: () => void;
+  refreshGoogleAccessToken: () => Promise<string | null>;
+  disconnectGoogleCalendar: () => Promise<void>;
 }
 
 function uidOf(): string | undefined {
@@ -712,17 +713,55 @@ export const useStore = create<StoreState>()((set, get) => ({
   },
 
   syncGoogleCalendar: async () => {
-    const token = get().googleToken;
-    if (!token || get().googleSyncing) return;
+    if (get().googleSyncing) return;
+    let token = get().googleToken;
+    if (!token) return;
     set({ googleSyncing: true });
-    try {
+
+    const dateRange = (): readonly [Date, Date] => {
       const from = new Date();
       from.setDate(from.getDate() - 7);
       from.setHours(0, 0, 0, 0);
       const to = new Date();
       to.setDate(to.getDate() + 60);
       to.setHours(23, 59, 59, 999);
-      const events = await fetchEvents(token, from, to);
+      return [from, to] as const;
+    };
+
+    const tryFetch = async (accessToken: string) => {
+      const [from, to] = dateRange();
+      return fetchEvents(accessToken, from, to);
+    };
+
+    try {
+      const events = await tryFetch(token);
+      set({ calendar: events, googleSyncedAt: Date.now(), googleSyncing: false });
+      return;
+    } catch (err) {
+      if (!(err instanceof GoogleCalendarAuthError)) {
+        // eslint-disable-next-line no-console
+        console.warn("[google calendar] sync failed:", err);
+        set({ googleSyncing: false });
+        return;
+      }
+    }
+
+    // Token rejected — try a refresh and retry once.
+    const newToken = await get().refreshGoogleAccessToken();
+    if (!newToken) {
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem(GOOGLE_TOKEN_KEY);
+      }
+      set({
+        googleToken: null,
+        calendar: [],
+        googleSyncing: false,
+      });
+      return;
+    }
+
+    try {
+      const events = await tryFetch(newToken);
       set({ calendar: events, googleSyncedAt: Date.now(), googleSyncing: false });
     } catch (err) {
       set({ googleSyncing: false });
@@ -733,12 +772,69 @@ export const useStore = create<StoreState>()((set, get) => ({
         set({ googleToken: null, calendar: [] });
       } else {
         // eslint-disable-next-line no-console
-        console.warn("[google calendar] sync failed:", err);
+        console.warn("[google calendar] retry failed:", err);
       }
     }
   },
 
-  disconnectGoogleCalendar: () => {
+  refreshGoogleAccessToken: async () => {
+    const uid = get().user?.id;
+    if (!uid) return null;
+
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("google_refresh_token")
+      .eq("user_id", uid)
+      .maybeSingle();
+
+    if (error || !data?.google_refresh_token) return null;
+    const refreshToken = data.google_refresh_token as string;
+
+    let res: Response;
+    try {
+      res = await fetch(`${window.location.origin}/api/refresh-google-token`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refresh_token: refreshToken }),
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.warn("[google calendar] refresh request failed", e);
+      return null;
+    }
+
+    if (!res.ok) {
+      // Refresh token was revoked or invalid — clear it so the user reconnects.
+      await supabase
+        .from("profiles")
+        .update({ google_refresh_token: null })
+        .eq("user_id", uid);
+      return null;
+    }
+
+    const payload = (await res.json()) as {
+      access_token: string;
+      refresh_token?: string;
+    };
+    const newToken = payload.access_token;
+
+    set({ googleToken: newToken });
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(GOOGLE_TOKEN_KEY, newToken);
+    }
+
+    if (payload.refresh_token && payload.refresh_token !== refreshToken) {
+      await supabase
+        .from("profiles")
+        .update({ google_refresh_token: payload.refresh_token })
+        .eq("user_id", uid);
+    }
+
+    return newToken;
+  },
+
+  disconnectGoogleCalendar: async () => {
+    const uid = get().user?.id;
     if (typeof localStorage !== "undefined") {
       localStorage.removeItem(GOOGLE_TOKEN_KEY);
       localStorage.removeItem(GOOGLE_EMAIL_KEY);
@@ -749,6 +845,12 @@ export const useStore = create<StoreState>()((set, get) => ({
       googleSyncedAt: null,
       calendar: [],
     });
+    if (uid) {
+      await supabase
+        .from("profiles")
+        .update({ google_refresh_token: null })
+        .eq("user_id", uid);
+    }
   },
 }));
 
@@ -757,8 +859,10 @@ export const useStore = create<StoreState>()((set, get) => ({
 // ================================================================
 function captureGoogleToken(session: Session | null) {
   if (!session?.provider_token) return;
-  // Supabase exposes provider_token only when the OAuth flow just completed.
-  // Persist so the token survives page reloads (until it expires ~1hr).
+  // Supabase exposes provider_token + provider_refresh_token only on the
+  // initial OAuth callback. Persist the access token to localStorage and
+  // the refresh token to the user's profile (RLS-scoped) so we can mint
+  // new access tokens via /api/refresh-google-token without re-prompting.
   const email = session.user?.email ?? null;
   if (typeof localStorage !== "undefined") {
     localStorage.setItem(GOOGLE_TOKEN_KEY, session.provider_token);
@@ -768,6 +872,18 @@ function captureGoogleToken(session: Session | null) {
     googleToken: session.provider_token,
     googleEmail: email,
   });
+
+  if (session.provider_refresh_token && session.user?.id) {
+    void supabase
+      .from("profiles")
+      .upsert(
+        {
+          user_id: session.user.id,
+          google_refresh_token: session.provider_refresh_token,
+        },
+        { onConflict: "user_id" }
+      );
+  }
 }
 
 supabase.auth.getSession().then(({ data }) => {
