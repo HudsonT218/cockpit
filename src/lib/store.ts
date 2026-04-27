@@ -20,7 +20,6 @@ import {
   decisionFromRow,
   blockFromRow,
   blockToRow,
-  eventFromRow,
   reflectionFromRow,
   routineFromRow,
   routineToRow,
@@ -30,7 +29,6 @@ import {
   seedTasks,
   seedDecisions,
   seedBlocks,
-  seedCalendar,
 } from "./seed";
 import {
   ghMe,
@@ -39,6 +37,15 @@ import {
   parseGithubRepo,
   type GhUser,
 } from "./github";
+import { fetchEvents, GoogleCalendarAuthError } from "./googleCalendar";
+
+const GOOGLE_TOKEN_KEY = "cockpit-google-token";
+const GOOGLE_EMAIL_KEY = "cockpit-google-email";
+
+function readLocal(key: string): string | null {
+  if (typeof localStorage === "undefined") return null;
+  return localStorage.getItem(key);
+}
 
 export type AuthStatus = "loading" | "authed" | "guest";
 
@@ -70,6 +77,12 @@ interface StoreState {
   githubCommitCounts: Record<string, number>; // date (YYYY-MM-DD) → count
   githubSyncing: boolean;
   githubLastSyncedAt: number | null;
+
+  // Google Calendar
+  googleToken: string | null;
+  googleEmail: string | null;
+  googleSyncedAt: number | null;
+  googleSyncing: boolean;
 
   // auth actions
   signUp: (email: string, password: string) => Promise<{ error?: string }>;
@@ -119,6 +132,8 @@ interface StoreState {
   connectGithub: (token: string) => Promise<{ error?: string }>;
   disconnectGithub: () => Promise<void>;
   syncGithubActivity: (force?: boolean) => Promise<void>;
+  syncGoogleCalendar: () => Promise<void>;
+  disconnectGoogleCalendar: () => void;
 }
 
 function uidOf(): string | undefined {
@@ -145,6 +160,10 @@ export const useStore = create<StoreState>()((set, get) => ({
   githubCommitCounts: {},
   githubSyncing: false,
   githubLastSyncedAt: null,
+  googleToken: readLocal(GOOGLE_TOKEN_KEY),
+  googleEmail: readLocal(GOOGLE_EMAIL_KEY),
+  googleSyncedAt: null,
+  googleSyncing: false,
 
   // ============== AUTH ==============
   signUp: async (email, password) => {
@@ -165,6 +184,11 @@ export const useStore = create<StoreState>()((set, get) => ({
       provider: "google",
       options: {
         redirectTo: window.location.origin,
+        scopes: "https://www.googleapis.com/auth/calendar.readonly",
+        queryParams: {
+          access_type: "offline",
+          prompt: "consent",
+        },
       },
     });
     if (error) return { error: error.message };
@@ -172,6 +196,10 @@ export const useStore = create<StoreState>()((set, get) => ({
   },
   signOut: async () => {
     await supabase.auth.signOut();
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(GOOGLE_TOKEN_KEY);
+      localStorage.removeItem(GOOGLE_EMAIL_KEY);
+    }
     set({
       projects: [],
       tasks: [],
@@ -182,6 +210,9 @@ export const useStore = create<StoreState>()((set, get) => ({
       reflections: [],
       focusProjectId: null,
       loaded: false,
+      googleToken: null,
+      googleEmail: null,
+      googleSyncedAt: null,
     });
   },
 
@@ -195,7 +226,6 @@ export const useStore = create<StoreState>()((set, get) => ({
       decisionsRes,
       blocksRes,
       routinesRes,
-      eventsRes,
       reflRes,
       profileRes,
     ] = await Promise.all([
@@ -204,7 +234,6 @@ export const useStore = create<StoreState>()((set, get) => ({
       supabase.from("decisions").select("*").order("date", { ascending: false }),
       supabase.from("time_blocks").select("*, time_block_tasks(task_id)").order("date", { ascending: true }),
       supabase.from("routines").select("*").order("start_time", { ascending: true }),
-      supabase.from("calendar_events").select("*").order("date", { ascending: true }),
       supabase.from("reflections").select("*").order("date", { ascending: false }),
       supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle(),
     ]);
@@ -214,7 +243,6 @@ export const useStore = create<StoreState>()((set, get) => ({
       decisions: (decisionsRes.data ?? []).map(decisionFromRow),
       blocks: (blocksRes.data ?? []).map(blockFromRow),
       routines: (routinesRes.data ?? []).map(routineFromRow),
-      calendar: (eventsRes.data ?? []).map(eventFromRow),
       reflections: (reflRes.data ?? []).map(reflectionFromRow),
       focusProjectId: profileRes.data?.focus_project_id ?? null,
       displayName: profileRes.data?.display_name ?? null,
@@ -232,6 +260,11 @@ export const useStore = create<StoreState>()((set, get) => ({
           void get().syncGithubActivity();
         })
         .catch(() => set({ githubUser: null }));
+    }
+
+    // fire-and-forget: pull Google Calendar events
+    if (get().googleToken) {
+      void get().syncGoogleCalendar();
     }
   },
 
@@ -257,7 +290,6 @@ export const useStore = create<StoreState>()((set, get) => ({
       tasks: seedTasks,
       decisions: seedDecisions,
       blocks: seedBlocks,
-      calendar: seedCalendar,
       reflections: [],
       focusProjectId: "proj_side_app",
     });
@@ -678,11 +710,66 @@ export const useStore = create<StoreState>()((set, get) => ({
       }),
     }));
   },
+
+  syncGoogleCalendar: async () => {
+    const token = get().googleToken;
+    if (!token || get().googleSyncing) return;
+    set({ googleSyncing: true });
+    try {
+      const from = new Date();
+      from.setDate(from.getDate() - 7);
+      from.setHours(0, 0, 0, 0);
+      const to = new Date();
+      to.setDate(to.getDate() + 60);
+      to.setHours(23, 59, 59, 999);
+      const events = await fetchEvents(token, from, to);
+      set({ calendar: events, googleSyncedAt: Date.now(), googleSyncing: false });
+    } catch (err) {
+      set({ googleSyncing: false });
+      if (err instanceof GoogleCalendarAuthError) {
+        if (typeof localStorage !== "undefined") {
+          localStorage.removeItem(GOOGLE_TOKEN_KEY);
+        }
+        set({ googleToken: null, calendar: [] });
+      } else {
+        // eslint-disable-next-line no-console
+        console.warn("[google calendar] sync failed:", err);
+      }
+    }
+  },
+
+  disconnectGoogleCalendar: () => {
+    if (typeof localStorage !== "undefined") {
+      localStorage.removeItem(GOOGLE_TOKEN_KEY);
+      localStorage.removeItem(GOOGLE_EMAIL_KEY);
+    }
+    set({
+      googleToken: null,
+      googleEmail: null,
+      googleSyncedAt: null,
+      calendar: [],
+    });
+  },
 }));
 
 // ================================================================
 // Auth bootstrap — wire Supabase session into the store
 // ================================================================
+function captureGoogleToken(session: Session | null) {
+  if (!session?.provider_token) return;
+  // Supabase exposes provider_token only when the OAuth flow just completed.
+  // Persist so the token survives page reloads (until it expires ~1hr).
+  const email = session.user?.email ?? null;
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem(GOOGLE_TOKEN_KEY, session.provider_token);
+    if (email) localStorage.setItem(GOOGLE_EMAIL_KEY, email);
+  }
+  useStore.setState({
+    googleToken: session.provider_token,
+    googleEmail: email,
+  });
+}
+
 supabase.auth.getSession().then(({ data }) => {
   const session = data.session;
   useStore.setState({
@@ -690,6 +777,7 @@ supabase.auth.getSession().then(({ data }) => {
     user: session?.user ?? null,
     authStatus: session ? "authed" : "guest",
   });
+  captureGoogleToken(session);
   if (session) void useStore.getState().loadAll();
 });
 
@@ -699,6 +787,7 @@ supabase.auth.onAuthStateChange((_event, session) => {
     user: session?.user ?? null,
     authStatus: session ? "authed" : "guest",
   });
+  captureGoogleToken(session);
   if (session) void useStore.getState().loadAll();
 });
 
@@ -712,7 +801,6 @@ async function importData(
     tasks?: Task[];
     decisions?: Decision[];
     blocks?: TimeBlock[];
-    calendar?: CalendarEvent[];
     reflections?: DayReflection[];
     focusProjectId?: string | null;
   }
@@ -791,20 +879,6 @@ async function importData(
       }
       count += data.length;
     }
-  }
-
-  // calendar events
-  if (s.calendar?.length) {
-    const rows = s.calendar.map((e) => ({
-      user_id: uid,
-      title: e.title,
-      date: e.date,
-      start_time: e.start,
-      end_time: e.end,
-      location: e.location ?? null,
-    }));
-    const { data, error } = await supabase.from("calendar_events").insert(rows).select();
-    if (!error && data) count += data.length;
   }
 
   // reflections

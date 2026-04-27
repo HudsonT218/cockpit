@@ -1,4 +1,4 @@
-import type { Project, Task, Decision, TimeBlock, CalendarEvent } from "./types";
+import type { Project, Task, Decision, TimeBlock } from "./types";
 import { isoDate } from "./utils";
 
 // Generic demo data — loaded via the command palette "Load demo data" action.
@@ -285,34 +285,3 @@ export const seedBlocks: TimeBlock[] = [
   },
 ];
 
-export const seedCalendar: CalendarEvent[] = [
-  {
-    id: "evt_1",
-    title: "Standup",
-    date: iso(0),
-    start: "10:00",
-    end: "10:15",
-  },
-  {
-    id: "evt_2",
-    title: "Gym",
-    date: iso(0),
-    start: "17:30",
-    end: "18:30",
-  },
-  {
-    id: "evt_3",
-    title: "Dinner with a friend",
-    date: iso(0),
-    start: "19:30",
-    end: "21:00",
-    location: "Downtown",
-  },
-  {
-    id: "evt_4",
-    title: "Design review",
-    date: iso(1),
-    start: "14:00",
-    end: "14:30",
-  },
-];

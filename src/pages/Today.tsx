@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Flag,
   MapPin,
+  RefreshCw,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -24,6 +25,9 @@ export default function Today() {
   const saveReflection = useStore((s) => s.saveReflection);
   const displayName = useStore((s) => s.displayName);
   const user = useStore((s) => s.user);
+  const googleToken = useStore((s) => s.googleToken);
+  const googleSyncing = useStore((s) => s.googleSyncing);
+  const syncGoogleCalendar = useStore((s) => s.syncGoogleCalendar);
 
   const today = isoDate(new Date());
   const activeProjects = projects.filter((p) => p.state === "active");
@@ -166,12 +170,34 @@ export default function Today() {
                 Calendar
               </span>
             </div>
-            <span className="text-[10px] text-ink-600 font-mono">
-              google · read-only
-            </span>
+            {googleToken ? (
+              <button
+                onClick={() => syncGoogleCalendar()}
+                disabled={googleSyncing}
+                className="text-[10px] text-ink-500 hover:text-ink-200 font-mono inline-flex items-center gap-1 transition disabled:opacity-40"
+                title="Refresh Google Calendar"
+              >
+                <RefreshCw
+                  className={cn(
+                    "w-3 h-3",
+                    googleSyncing && "animate-spin"
+                  )}
+                />
+                google
+              </button>
+            ) : (
+              <span className="text-[10px] text-ink-600 font-mono">
+                not connected
+              </span>
+            )}
           </div>
           <div className="space-y-2">
-            {todayEvents.length === 0 && (
+            {!googleToken && (
+              <div className="text-sm text-ink-500 py-4">
+                Connect Google Calendar in settings to see events here.
+              </div>
+            )}
+            {googleToken && todayEvents.length === 0 && (
               <div className="text-sm text-ink-500 py-4">
                 Nothing scheduled. Quiet day.
               </div>

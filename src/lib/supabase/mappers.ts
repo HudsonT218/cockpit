@@ -3,7 +3,6 @@ import type {
   Task,
   Decision,
   TimeBlock,
-  CalendarEvent,
   DayReflection,
   Routine,
 } from "../types";
@@ -120,17 +119,6 @@ export function blockToRow(b: Partial<TimeBlock>) {
   return o;
 }
 
-// ---- calendar events ----
-export function eventFromRow(r: any): CalendarEvent {
-  return {
-    id: r.id,
-    title: r.title,
-    date: r.date,
-    start: (r.start_time as string).slice(0, 5),
-    end: (r.end_time as string).slice(0, 5),
-    location: r.location ?? undefined,
-  };
-}
 
 // ---- reflections ----
 export function reflectionFromRow(r: any): DayReflection {

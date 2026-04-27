@@ -1,7 +1,7 @@
 import { useState } from "react";
 import Modal, { FormRow, ModalActions, inputCls } from "../Modal";
 import { useStore } from "@/lib/store";
-import { Github, Check, ExternalLink, AlertCircle } from "lucide-react";
+import { Github, Check, ExternalLink, AlertCircle, Calendar } from "lucide-react";
 
 export default function SettingsDialog({
   open,
@@ -17,6 +17,13 @@ export default function SettingsDialog({
   const githubToken = useStore((s) => s.githubToken);
   const connectGithub = useStore((s) => s.connectGithub);
   const disconnectGithub = useStore((s) => s.disconnectGithub);
+  const googleToken = useStore((s) => s.googleToken);
+  const googleEmail = useStore((s) => s.googleEmail);
+  const googleSyncedAt = useStore((s) => s.googleSyncedAt);
+  const googleSyncing = useStore((s) => s.googleSyncing);
+  const signInWithGoogle = useStore((s) => s.signInWithGoogle);
+  const syncGoogleCalendar = useStore((s) => s.syncGoogleCalendar);
+  const disconnectGoogleCalendar = useStore((s) => s.disconnectGoogleCalendar);
 
   const [name, setName] = useState(displayName ?? "");
   const [token, setToken] = useState("");
@@ -150,6 +157,61 @@ export default function SettingsDialog({
         )}
       </div>
 
+      {/* Google Calendar */}
+      <div className="mt-6 pt-5 border-t border-ink-800">
+        <div className="flex items-center gap-2 mb-3">
+          <Calendar className="w-4 h-4 text-ink-300" />
+          <span className="text-sm font-medium text-ink-100">Google Calendar</span>
+        </div>
+
+        {googleToken ? (
+          <div className="p-3 border border-emerald-500/20 bg-emerald-500/[0.04] rounded-lg">
+            <div className="flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <div className="text-sm text-ink-100 inline-flex items-center gap-1.5">
+                  <Check className="w-3 h-3 text-emerald-400" />
+                  Connected{googleEmail ? ` as ${googleEmail}` : ""}
+                </div>
+                <div className="text-xs text-ink-500 mt-0.5">
+                  {googleSyncedAt
+                    ? `Last synced ${formatSyncedAgo(googleSyncedAt)}`
+                    : "Not yet synced"}
+                </div>
+              </div>
+              <button
+                onClick={() => syncGoogleCalendar()}
+                disabled={googleSyncing}
+                className="text-xs text-ink-400 hover:text-ink-100 transition disabled:opacity-40"
+              >
+                {googleSyncing ? "Syncing…" : "Sync now"}
+              </button>
+              <button
+                onClick={() => disconnectGoogleCalendar()}
+                className="text-xs text-ink-500 hover:text-rose-400 transition"
+              >
+                Disconnect
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <p className="text-xs text-ink-400 mb-3 leading-relaxed">
+              Connect your Google account to mirror calendar events into Cockpit.
+              Read-only — Cockpit never writes to your calendar.
+            </p>
+            <button
+              onClick={() => signInWithGoogle()}
+              className="px-3 py-1.5 text-sm bg-ink-50 text-ink-950 rounded-lg font-medium hover:bg-white transition"
+            >
+              Connect Google Calendar
+            </button>
+            <p className="text-[11px] text-ink-600 mt-2">
+              You'll be redirected to Google to grant calendar access.
+            </p>
+          </>
+        )}
+      </div>
+
       <ModalActions>
         <button
           onClick={onClose}
@@ -160,4 +222,12 @@ export default function SettingsDialog({
       </ModalActions>
     </Modal>
   );
+}
+
+function formatSyncedAgo(ts: number): string {
+  const sec = Math.floor((Date.now() - ts) / 1000);
+  if (sec < 60) return "just now";
+  if (sec < 3600) return `${Math.floor(sec / 60)}m ago`;
+  if (sec < 86400) return `${Math.floor(sec / 3600)}h ago`;
+  return `${Math.floor(sec / 86400)}d ago`;
 }
