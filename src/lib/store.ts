@@ -584,6 +584,19 @@ export const useStore = create<StoreState>()((set, get) => ({
     if (error) throw error;
     set((s) => ({ blocks: s.blocks.filter((b) => b.id !== id) }));
 
+    // Unschedule linked tasks that aren't booked into another block, so they
+    // return to the project / unscheduled pool and can be re-dragged onto a
+    // different day. Tasks themselves are never deleted here.
+    if (block?.taskIds.length) {
+      const remaining = get().blocks;
+      for (const taskId of block.taskIds) {
+        const stillBooked = remaining.some((b) => b.taskIds.includes(taskId));
+        if (!stillBooked) {
+          await get().updateTask(taskId, { scheduledFor: "" });
+        }
+      }
+    }
+
     if (block?.googleEventId) {
       void withFreshGoogleToken((t) => deleteEvent(t, block.googleEventId!));
     } else if (get().googleToken) {
