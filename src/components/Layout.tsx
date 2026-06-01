@@ -6,6 +6,7 @@ import {
   CalendarDays,
   CalendarRange,
   Trophy,
+  GraduationCap,
   Command,
   Sparkles,
   LogOut,
@@ -21,6 +22,7 @@ import { useEffect, useState } from "react";
 const navItems = [
   { to: "/", label: "Today", icon: LayoutDashboard, end: true },
   { to: "/projects", label: "Projects", icon: FolderKanban },
+  { to: "/learning", label: "Learning", icon: GraduationCap },
   { to: "/inbox", label: "Inbox", icon: InboxIcon },
   { to: "/day", label: "Plan the day", icon: CalendarDays },
   { to: "/planner", label: "Week", icon: CalendarRange },

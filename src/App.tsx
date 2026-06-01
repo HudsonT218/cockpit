@@ -8,6 +8,8 @@ import Inbox from "./pages/Inbox";
 import Planner from "./pages/Planner";
 import DayPlanner from "./pages/DayPlanner";
 import Shipped from "./pages/Shipped";
+import Learning from "./pages/Learning";
+import LearningTrack from "./pages/LearningTrack";
 
 export default function App() {
   return (
@@ -21,6 +23,8 @@ export default function App() {
           <Route path="/day" element={<DayPlanner />} />
           <Route path="/planner" element={<Planner />} />
           <Route path="/shipped" element={<Shipped />} />
+          <Route path="/learning" element={<Learning />} />
+          <Route path="/learning/:trackId" element={<LearningTrack />} />
         </Route>
       </Routes>
     </AuthGate>

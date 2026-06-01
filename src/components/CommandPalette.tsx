@@ -12,8 +12,10 @@ import {
   Database,
   LogOut,
   Settings,
+  GraduationCap,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { useLearningStore } from "@/lib/learningStore";
 import { cn } from "@/lib/utils";
 import { AnimatePresence, motion } from "framer-motion";
 
@@ -42,6 +44,7 @@ export default function CommandPalette({
   const setFocusProject = useStore((s) => s.setFocusProject);
   const importFromLocalStorage = useStore((s) => s.importFromLocalStorage);
   const loadDemoData = useStore((s) => s.loadDemoData);
+  const seedFinanceTrack = useLearningStore((s) => s.seedFinanceTrack);
   const signOut = useStore((s) => s.signOut);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -69,6 +72,13 @@ export default function CommandPalette({
         section: "Navigate",
         icon: FolderKanban,
         run: () => navigate("/projects"),
+      },
+      {
+        id: "nav-learning",
+        label: "Go to Learning",
+        section: "Navigate",
+        icon: GraduationCap,
+        run: () => navigate("/learning"),
       },
       {
         id: "nav-inbox",
@@ -123,6 +133,20 @@ export default function CommandPalette({
         },
       },
       {
+        id: "seed-finance",
+        label: "Seed Finance & Macro learning track",
+        section: "Actions",
+        icon: GraduationCap,
+        run: async () => {
+          const res = await seedFinanceTrack();
+          alert(
+            res.created
+              ? "Finance & Macro track added."
+              : "Finance & Macro track already exists."
+          );
+        },
+      },
+      {
         id: "signout",
         label: "Sign out",
         section: "Actions",
@@ -148,7 +172,7 @@ export default function CommandPalette({
       run: () => navigate(`/projects/${p.id}`),
     }));
     return [...base, ...projectCmds, ...openProject];
-  }, [projects, navigate, setFocusProject, importFromLocalStorage, loadDemoData, signOut, onOpenSettings]);
+  }, [projects, navigate, setFocusProject, importFromLocalStorage, loadDemoData, seedFinanceTrack, signOut, onOpenSettings]);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();
