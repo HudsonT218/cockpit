@@ -13,6 +13,7 @@ Keep track of what's active, what's on ice, what's shipped. Plan your day around
 - **Inbox** for standalone tasks + recurring routines
 - **Project detail** with next action, kanban (Now / Next / Done), decision log, GitHub commits
 - **GitHub integration** — link repos, see recent commits, aggregated 12-week activity heatmap
+- **Learning** — long-horizon learning tracks with a milestone roadmap, daily habits by cadence, and per-day completions driving streaks + a heatmap
 - **Command palette** (⌘K) for navigation and actions
 
 ## Stack
@@ -64,6 +65,7 @@ Open http://localhost:5173 — sign up, then use the command palette (`⌘K`) to
 - `supabase/schema.sql` — full schema, idempotent
 - `supabase/migration_github.sql` — adds GitHub token column
 - `supabase/migration_task_description.sql` — adds description column to tasks
+- `supabase/migration_learning.sql` — adds the Learning module tables (tracks, milestones, daily habits, completions)
 
 ## GitHub integration
 
