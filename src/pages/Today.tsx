@@ -1,6 +1,11 @@
+import { useEffect } from "react";
 import { useStore } from "@/lib/store";
+import { useLearningStore } from "@/lib/learningStore";
+import { getActiveHabitsForDate } from "@/lib/learningSelectors";
+import { accentOf } from "@/lib/learningAccent";
 import { cn, energyLabels, isoDate, relativeTime } from "@/lib/utils";
 import TaskItem from "@/components/TaskItem";
+import TodayHabitRow from "@/components/learning/TodayHabitRow";
 import CommitHeatmap from "@/components/CommitHeatmap";
 import { motion } from "framer-motion";
 import {
@@ -12,6 +17,7 @@ import {
   Flag,
   MapPin,
   RefreshCw,
+  GraduationCap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -28,8 +34,17 @@ export default function Today() {
   const googleToken = useStore((s) => s.googleToken);
   const googleSyncing = useStore((s) => s.googleSyncing);
   const syncGoogleCalendar = useStore((s) => s.syncGoogleCalendar);
+  const habits = useLearningStore((s) => s.habits);
+  const learningTracks = useLearningStore((s) => s.tracks);
+  const learningLoaded = useLearningStore((s) => s.loaded);
+  const loadLearning = useLearningStore((s) => s.loadLearning);
+
+  useEffect(() => {
+    if (!learningLoaded) void loadLearning();
+  }, [learningLoaded, loadLearning]);
 
   const today = isoDate(new Date());
+  const todayHabits = getActiveHabitsForDate(today, habits);
   const activeProjects = projects.filter((p) => p.state === "active");
   const focusProject =
     projects.find((p) => p.id === focusProjectId) ?? activeProjects[0];
@@ -344,7 +359,7 @@ export default function Today() {
             </Link>
           </div>
           <div className="space-y-0.5">
-            {todayTasks.length === 0 && (
+            {todayTasks.length === 0 && todayHabits.length === 0 && (
               <div className="text-sm text-ink-500 py-4">
                 Nothing on deck for today. Add something from the inbox.
               </div>
@@ -352,6 +367,34 @@ export default function Today() {
             {todayTasks.map((t) => (
               <TaskItem key={t.id} task={t} />
             ))}
+            {todayHabits.length > 0 && (
+              <div
+                className={cn(
+                  "space-y-0.5",
+                  todayTasks.length > 0 && "mt-2 pt-2 border-t border-ink-800/60"
+                )}
+              >
+                <Link
+                  to="/learning"
+                  className="px-3 pb-1 text-[10px] uppercase tracking-wider text-ink-500 hover:text-ink-300 font-mono flex items-center gap-1.5 transition"
+                >
+                  <GraduationCap className="w-3 h-3" /> Learning habits
+                </Link>
+                {todayHabits.map((h) => {
+                  const accent = accentOf(
+                    learningTracks.find((t) => t.id === h.trackId)?.colorAccent
+                  );
+                  return (
+                    <TodayHabitRow
+                      key={h.id}
+                      habit={h}
+                      date={today}
+                      accent={accent}
+                    />
+                  );
+                })}
+              </div>
+            )}
           </div>
         </motion.section>
 
