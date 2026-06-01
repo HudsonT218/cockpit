@@ -86,3 +86,65 @@ export interface Routine {
   projectId?: string;
   energyTag?: EnergyTag;
 }
+
+// ---- Learning module ----
+export type TrackAccent = "amber" | "rose" | "emerald" | "sky" | "violet";
+export type HabitCadence =
+  | "daily"
+  | "mon_thu"
+  | "mon_wed"
+  | "sat_sun"
+  | "sun"
+  | "custom";
+
+export interface SubItem {
+  id: string;
+  label: string;
+  done: boolean;
+}
+
+export interface LearningTrack {
+  id: string;
+  name: string;
+  description?: string;
+  colorAccent: TrackAccent;
+  startedOn: string; // YYYY-MM-DD
+  targetFinishOn?: string; // YYYY-MM-DD
+  archived: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Milestone {
+  id: string;
+  trackId: string;
+  title: string;
+  description?: string;
+  orderIndex: number;
+  targetDate?: string; // YYYY-MM-DD
+  completedAt?: string; // ISO; undefined === not complete
+  subItems: SubItem[];
+  createdAt: string;
+}
+
+export interface DailyHabit {
+  id: string;
+  trackId: string;
+  name: string;
+  description?: string;
+  cadence: HabitCadence;
+  daysOfWeek: number[]; // 0=Sun..6=Sat, meaningful only when cadence === "custom"
+  targetMinutes?: number;
+  orderIndex: number;
+  active: boolean;
+  createdAt: string;
+}
+
+export interface HabitCompletion {
+  id: string;
+  habitId: string;
+  completedOn: string; // YYYY-MM-DD
+  minutesSpent?: number;
+  note?: string;
+  createdAt: string;
+}
