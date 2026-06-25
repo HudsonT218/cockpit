@@ -45,6 +45,7 @@ export default function NewProjectDialog({
   const [state, setState] = useState<ProjectState>("active");
   const [nextAction, setNextAction] = useState("");
   const [color, setColor] = useState(PALETTE[0]);
+  const [trackHours, setTrackHours] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -54,6 +55,7 @@ export default function NewProjectDialog({
       setState("active");
       setNextAction("");
       setColor(PALETTE[Math.floor(Math.random() * PALETTE.length)]);
+      setTrackHours(false);
     }
   }, [open]);
 
@@ -131,6 +133,16 @@ export default function NewProjectDialog({
           ))}
         </div>
       </FormRow>
+      <label className="flex items-center gap-2 mb-3 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={trackHours}
+          onChange={(e) => setTrackHours(e.target.checked)}
+        />
+        <span className="text-sm text-ink-300">
+          Track hours (clock in/out, exportable)
+        </span>
+      </label>
       <ModalActions>
         <button
           onClick={onClose}
@@ -148,6 +160,7 @@ export default function NewProjectDialog({
               state,
               nextAction: nextAction || undefined,
               accentColor: color,
+              trackHours,
             });
             onClose();
           }}

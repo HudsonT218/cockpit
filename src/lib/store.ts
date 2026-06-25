@@ -11,6 +11,7 @@ import type {
   TaskStatus,
   DayReflection,
   Routine,
+  WorkSession,
 } from "./types";
 import { supabase } from "./supabase/client";
 import {
@@ -26,6 +27,8 @@ import {
   reflectionFromRow,
   routineFromRow,
   routineToRow,
+  workSessionFromRow,
+  workSessionToRow,
 } from "./supabase/mappers";
 import { slugify, knownTypeSlugs } from "./projectTypes";
 import {
@@ -74,6 +77,7 @@ interface StoreState {
   decisions: Decision[];
   blocks: TimeBlock[];
   routines: Routine[];
+  workSessions: WorkSession[];
   calendar: CalendarEvent[];
   reflections: DayReflection[];
   focusProjectId: string | null;
@@ -142,6 +146,12 @@ interface StoreState {
   addRoutine: (r: Omit<Routine, "id">) => Promise<string>;
   updateRoutine: (id: string, patch: Partial<Routine>) => Promise<void>;
   deleteRoutine: (id: string) => Promise<void>;
+
+  // work sessions (hour tracking)
+  clockIn: (projectId: string) => Promise<string>;
+  clockOut: (projectId: string) => Promise<void>;
+  updateWorkSession: (id: string, patch: Partial<WorkSession>) => Promise<void>;
+  deleteWorkSession: (id: string) => Promise<void>;
 
   // profile + integrations
   setDisplayName: (name: string) => Promise<void>;
@@ -213,6 +223,7 @@ export const useStore = create<StoreState>()((set, get) => ({
   decisions: [],
   blocks: [],
   routines: [],
+  workSessions: [],
   calendar: [],
   reflections: [],
   focusProjectId: null,
@@ -265,10 +276,12 @@ export const useStore = create<StoreState>()((set, get) => ({
     }
     set({
       projects: [],
+      projectTypes: [],
       tasks: [],
       decisions: [],
       blocks: [],
       routines: [],
+      workSessions: [],
       calendar: [],
       reflections: [],
       focusProjectId: null,
@@ -290,6 +303,7 @@ export const useStore = create<StoreState>()((set, get) => ({
       decisionsRes,
       blocksRes,
       routinesRes,
+      workSessionsRes,
       reflRes,
       profileRes,
     ] = await Promise.all([
@@ -299,6 +313,7 @@ export const useStore = create<StoreState>()((set, get) => ({
       supabase.from("decisions").select("*").order("date", { ascending: false }),
       supabase.from("time_blocks").select("*, time_block_tasks(task_id)").order("date", { ascending: true }),
       supabase.from("routines").select("*").order("start_time", { ascending: true }),
+      supabase.from("work_sessions").select("*").order("started_at", { ascending: false }),
       supabase.from("reflections").select("*").order("date", { ascending: false }),
       supabase.from("profiles").select("*").eq("user_id", uid).maybeSingle(),
     ]);
@@ -309,6 +324,7 @@ export const useStore = create<StoreState>()((set, get) => ({
       decisions: (decisionsRes.data ?? []).map(decisionFromRow),
       blocks: (blocksRes.data ?? []).map(blockFromRow),
       routines: (routinesRes.data ?? []).map(routineFromRow),
+      workSessions: (workSessionsRes.data ?? []).map(workSessionFromRow),
       reflections: (reflRes.data ?? []).map(reflectionFromRow),
       focusProjectId: profileRes.data?.focus_project_id ?? null,
       displayName: profileRes.data?.display_name ?? null,
@@ -431,6 +447,8 @@ export const useStore = create<StoreState>()((set, get) => ({
       blocks: s.blocks.map((b) =>
         b.projectId === id ? { ...b, projectId: undefined } : b
       ),
+      // work_sessions cascade-delete in the DB (FK on delete cascade)
+      workSessions: s.workSessions.filter((w) => w.projectId !== id),
       focusProjectId: s.focusProjectId === id ? null : s.focusProjectId,
     }));
   },
@@ -727,6 +745,62 @@ export const useStore = create<StoreState>()((set, get) => ({
     const { error } = await supabase.from("routines").delete().eq("id", id);
     if (error) throw error;
     set((s) => ({ routines: s.routines.filter((r) => r.id !== id) }));
+  },
+
+  // ============== WORK SESSIONS (hour tracking) ==============
+  clockIn: async (projectId) => {
+    const uid = uidOf();
+    if (!uid) throw new Error("not authed");
+    // At most one open session per project: reuse an existing one if present.
+    const open = get().workSessions.find(
+      (w) => w.projectId === projectId && !w.endedAt
+    );
+    if (open) return open.id;
+    const { data, error } = await supabase
+      .from("work_sessions")
+      .insert({
+        ...workSessionToRow({
+          projectId,
+          startedAt: new Date().toISOString(),
+        }),
+        user_id: uid,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    const session = workSessionFromRow(data);
+    set((s) => ({ workSessions: [session, ...s.workSessions] }));
+    return session.id;
+  },
+
+  clockOut: async (projectId) => {
+    const open = get().workSessions.find(
+      (w) => w.projectId === projectId && !w.endedAt
+    );
+    if (!open) return;
+    await get().updateWorkSession(open.id, {
+      endedAt: new Date().toISOString(),
+    });
+  },
+
+  updateWorkSession: async (id, patch) => {
+    const { data, error } = await supabase
+      .from("work_sessions")
+      .update(workSessionToRow(patch))
+      .eq("id", id)
+      .select()
+      .single();
+    if (error) throw error;
+    const session = workSessionFromRow(data);
+    set((s) => ({
+      workSessions: s.workSessions.map((w) => (w.id === id ? session : w)),
+    }));
+  },
+
+  deleteWorkSession: async (id) => {
+    const { error } = await supabase.from("work_sessions").delete().eq("id", id);
+    if (error) throw error;
+    set((s) => ({ workSessions: s.workSessions.filter((w) => w.id !== id) }));
   },
 
   // ============== PROFILE + INTEGRATIONS ==============
