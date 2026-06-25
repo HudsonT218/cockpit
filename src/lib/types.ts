@@ -27,6 +27,18 @@ export interface Project {
   lastTouchedAt: string;
   createdAt: string;
   resumeNote?: string;
+  trackHours?: boolean;
+}
+
+// A clock-in / clock-out work session for hour tracking.
+// endedAt undefined === currently clocked in (open session).
+export interface WorkSession {
+  id: string;
+  projectId: string;
+  startedAt: string; // ISO
+  endedAt?: string; // ISO
+  note?: string;
+  createdAt: string;
 }
 
 // A user-defined custom project type (built-ins code/business/life are not

@@ -32,6 +32,7 @@ import ParkDialog from "@/components/dialogs/ParkDialog";
 import DecisionDialog from "@/components/dialogs/DecisionDialog";
 import LinkRepoDialog from "@/components/dialogs/LinkRepoDialog";
 import GithubCommits from "@/components/GithubCommits";
+import HoursPanel from "@/components/HoursPanel";
 import Modal, { FormRow, ModalActions } from "@/components/Modal";
 import { AlertTriangle, Link2 } from "lucide-react";
 
@@ -239,6 +240,8 @@ export default function ProjectDetail() {
         </div>
 
         <div className="grid grid-cols-12 gap-5">
+          {project.trackHours && <HoursPanel project={project} />}
+
           {/* Next action */}
           <section className="col-span-12 lg:col-span-8 p-6 rounded-2xl border border-ink-800 bg-ink-900/40">
             <div className="text-[10px] uppercase tracking-[0.25em] text-ink-500 font-mono mb-3 flex items-center gap-2">
@@ -279,6 +282,19 @@ export default function ProjectDetail() {
               Meta
             </div>
             <div className="space-y-2.5 text-sm">
+              <MetaRow
+                label="Track hours"
+                value={
+                  <input
+                    type="checkbox"
+                    checked={!!project.trackHours}
+                    onChange={(e) =>
+                      updateProject(project.id, { trackHours: e.target.checked })
+                    }
+                    className="cursor-pointer"
+                  />
+                }
+              />
               <MetaRow label="Last touched" value={relativeTime(project.lastTouchedAt)} />
               {project.stack && (
                 <MetaRow

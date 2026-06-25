@@ -55,6 +55,16 @@ export function isoDate(d: Date) {
   return new Date(d.getTime() - tz).toISOString().slice(0, 10);
 }
 
+// Whole-minute duration -> "3h 24m" / "45m" / "2h". Negative/zero -> "0m".
+export function formatDuration(minutes: number): string {
+  const total = Math.max(0, Math.round(minutes));
+  const h = Math.floor(total / 60);
+  const m = total % 60;
+  if (h === 0) return `${m}m`;
+  if (m === 0) return `${h}h`;
+  return `${h}h ${m}m`;
+}
+
 export const typeLabels: Record<string, string> = {
   code: "Code",
   business: "Business",

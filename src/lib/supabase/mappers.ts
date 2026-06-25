@@ -6,6 +6,7 @@ import type {
   TimeBlock,
   DayReflection,
   Routine,
+  WorkSession,
 } from "../types";
 
 // ---- project types (custom) ----
@@ -43,6 +44,7 @@ export function projectFromRow(r: any): Project {
     client: r.client ?? undefined,
     dueDate: r.due_date ?? undefined,
     resumeNote: r.resume_note ?? undefined,
+    trackHours: r.track_hours ?? false,
     lastTouchedAt: r.last_touched_at,
     createdAt: r.created_at,
   };
@@ -62,7 +64,29 @@ export function projectToRow(p: Partial<Project>) {
   if (p.client !== undefined) o.client = p.client || null;
   if (p.dueDate !== undefined) o.due_date = p.dueDate || null;
   if (p.resumeNote !== undefined) o.resume_note = p.resumeNote || null;
+  if (p.trackHours !== undefined) o.track_hours = p.trackHours;
   if (p.lastTouchedAt !== undefined) o.last_touched_at = p.lastTouchedAt;
+  return o;
+}
+
+// ---- work sessions ----
+export function workSessionFromRow(r: any): WorkSession {
+  return {
+    id: r.id,
+    projectId: r.project_id,
+    startedAt: r.started_at,
+    endedAt: r.ended_at ?? undefined,
+    note: r.note ?? undefined,
+    createdAt: r.created_at,
+  };
+}
+
+export function workSessionToRow(s: Partial<WorkSession>) {
+  const o: any = {};
+  if (s.projectId !== undefined) o.project_id = s.projectId;
+  if (s.startedAt !== undefined) o.started_at = s.startedAt;
+  if (s.endedAt !== undefined) o.ended_at = s.endedAt || null;
+  if (s.note !== undefined) o.note = s.note || null;
   return o;
 }
 
