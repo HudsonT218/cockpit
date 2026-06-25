@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { Session, User } from "@supabase/supabase-js";
 import type {
   Project,
+  ProjectTypeDef,
   Task,
   Decision,
   TimeBlock,
@@ -15,6 +16,8 @@ import { supabase } from "./supabase/client";
 import {
   projectFromRow,
   projectToRow,
+  projectTypeFromRow,
+  projectTypeToRow,
   taskFromRow,
   taskToRow,
   decisionFromRow,
@@ -24,6 +27,7 @@ import {
   routineFromRow,
   routineToRow,
 } from "./supabase/mappers";
+import { slugify, knownTypeSlugs } from "./projectTypes";
 import {
   seedProjects,
   seedTasks,
@@ -65,6 +69,7 @@ interface StoreState {
 
   // data
   projects: Project[];
+  projectTypes: ProjectTypeDef[];
   tasks: Task[];
   decisions: Decision[];
   blocks: TimeBlock[];
@@ -109,6 +114,10 @@ interface StoreState {
   touchProject: (id: string) => Promise<void>;
   setFocusProject: (id: string | null) => Promise<void>;
   deleteProject: (id: string, opts?: { deleteTasks?: boolean }) => Promise<void>;
+
+  // project-type actions (custom types only)
+  addProjectType: (label: string) => Promise<string | null>;
+  deleteProjectType: (id: string) => Promise<void>;
 
   // task actions
   addTask: (t: Partial<Task> & { title: string }) => Promise<string>;
@@ -199,6 +208,7 @@ export const useStore = create<StoreState>()((set, get) => ({
   authStatus: "loading",
   displayName: null,
   projects: [],
+  projectTypes: [],
   tasks: [],
   decisions: [],
   blocks: [],
@@ -275,6 +285,7 @@ export const useStore = create<StoreState>()((set, get) => ({
     if (!uid) return;
     const [
       projectsRes,
+      projectTypesRes,
       tasksRes,
       decisionsRes,
       blocksRes,
@@ -283,6 +294,7 @@ export const useStore = create<StoreState>()((set, get) => ({
       profileRes,
     ] = await Promise.all([
       supabase.from("projects").select("*").order("last_touched_at", { ascending: false }),
+      supabase.from("project_types").select("*").order("order_index", { ascending: true }),
       supabase.from("tasks").select("*").order("created_at", { ascending: false }),
       supabase.from("decisions").select("*").order("date", { ascending: false }),
       supabase.from("time_blocks").select("*, time_block_tasks(task_id)").order("date", { ascending: true }),
@@ -292,6 +304,7 @@ export const useStore = create<StoreState>()((set, get) => ({
     ]);
     set({
       projects: (projectsRes.data ?? []).map(projectFromRow),
+      projectTypes: (projectTypesRes.data ?? []).map(projectTypeFromRow),
       tasks: (tasksRes.data ?? []).map(taskFromRow),
       decisions: (decisionsRes.data ?? []).map(decisionFromRow),
       blocks: (blocksRes.data ?? []).map(blockFromRow),
@@ -420,6 +433,44 @@ export const useStore = create<StoreState>()((set, get) => ({
       ),
       focusProjectId: s.focusProjectId === id ? null : s.focusProjectId,
     }));
+  },
+
+  // ============== PROJECT TYPES (custom) ==============
+  addProjectType: async (label) => {
+    const uid = uidOf();
+    if (!uid) throw new Error("not authed");
+    const trimmed = label.trim();
+    if (!trimmed) return null;
+    // Build a unique slug (built-in + existing custom slugs are reserved).
+    const taken = knownTypeSlugs(get().projectTypes);
+    const base = slugify(trimmed) || "type";
+    let slug = base;
+    let n = 2;
+    while (taken.has(slug)) slug = `${base}-${n++}`;
+    const { data, error } = await supabase
+      .from("project_types")
+      .insert({
+        ...projectTypeToRow({
+          label: trimmed,
+          slug,
+          orderIndex: get().projectTypes.length,
+        }),
+        user_id: uid,
+      })
+      .select()
+      .single();
+    if (error) throw error;
+    const def = projectTypeFromRow(data);
+    set((s) => ({ projectTypes: [...s.projectTypes, def] }));
+    return def.id;
+  },
+
+  deleteProjectType: async (id) => {
+    // Projects keep their (now-orphaned) type slug and render as
+    // "Uncategorized" until re-assigned — no project rows are touched.
+    const { error } = await supabase.from("project_types").delete().eq("id", id);
+    if (error) throw error;
+    set((s) => ({ projectTypes: s.projectTypes.filter((t) => t.id !== id) }));
   },
 
   // ============== TASKS ==============

@@ -1,11 +1,31 @@
 import type {
   Project,
+  ProjectTypeDef,
   Task,
   Decision,
   TimeBlock,
   DayReflection,
   Routine,
 } from "../types";
+
+// ---- project types (custom) ----
+export function projectTypeFromRow(r: any): ProjectTypeDef {
+  return {
+    id: r.id,
+    label: r.label,
+    slug: r.slug,
+    orderIndex: r.order_index ?? 0,
+    createdAt: r.created_at,
+  };
+}
+
+export function projectTypeToRow(p: Partial<ProjectTypeDef>) {
+  const o: any = {};
+  if (p.label !== undefined) o.label = p.label;
+  if (p.slug !== undefined) o.slug = p.slug;
+  if (p.orderIndex !== undefined) o.order_index = p.orderIndex;
+  return o;
+}
 
 // ---- projects ----
 export function projectFromRow(r: any): Project {

@@ -1,8 +1,14 @@
-import { cn, typeLabels } from "@/lib/utils";
-import type { ProjectType } from "@/lib/types";
-import { Code2, Briefcase, Heart } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useStore } from "@/lib/store";
+import { typeLabelFor } from "@/lib/projectTypes";
+import { Code2, Briefcase, Heart, Tag } from "lucide-react";
 
-const icons: Record<ProjectType, React.ComponentType<{ className?: string }>> = {
+// Built-in slugs get a dedicated icon; custom + unknown ("Uncategorized")
+// slugs fall back to a generic tag icon.
+const builtinIcons: Record<
+  string,
+  React.ComponentType<{ className?: string }>
+> = {
   code: Code2,
   business: Briefcase,
   life: Heart,
@@ -12,10 +18,11 @@ export default function TypeBadge({
   type,
   className,
 }: {
-  type: ProjectType;
+  type: string;
   className?: string;
 }) {
-  const Icon = icons[type];
+  const projectTypes = useStore((s) => s.projectTypes);
+  const Icon = builtinIcons[type] ?? Tag;
   return (
     <span
       className={cn(
@@ -24,7 +31,7 @@ export default function TypeBadge({
       )}
     >
       <Icon className="w-3 h-3" />
-      {typeLabels[type]}
+      {typeLabelFor(type, projectTypes)}
     </span>
   );
 }

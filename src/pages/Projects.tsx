@@ -1,11 +1,18 @@
 import { useState } from "react";
 import { useStore } from "@/lib/store";
 import ProjectCard from "@/components/ProjectCard";
-import type { ProjectState, ProjectType } from "@/lib/types";
-import { cn, stateLabels, typeLabels } from "@/lib/utils";
-import { Plus } from "lucide-react";
+import type { ProjectState } from "@/lib/types";
+import { cn, stateLabels } from "@/lib/utils";
+import {
+  BUILTIN_TYPE_SLUGS,
+  typeLabelFor,
+  isUncategorized,
+  UNCATEGORIZED_LABEL,
+} from "@/lib/projectTypes";
+import { Plus, SlidersHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 import NewProjectDialog from "@/components/dialogs/NewProjectDialog";
+import ManageTypesDialog from "@/components/dialogs/ManageTypesDialog";
 
 const states: (ProjectState | "all")[] = [
   "all",
@@ -15,19 +22,33 @@ const states: (ProjectState | "all")[] = [
   "idea",
   "shipped",
 ];
-const types: (ProjectType | "all")[] = ["all", "code", "business", "life"];
 
 export default function Projects() {
   const projects = useStore((s) => s.projects);
+  const projectTypes = useStore((s) => s.projectTypes);
   const [stateFilter, setStateFilter] = useState<ProjectState | "all">("all");
-  const [typeFilter, setTypeFilter] = useState<ProjectType | "all">("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
   const [search, setSearch] = useState("");
   const [newOpen, setNewOpen] = useState(false);
+  const [manageTypesOpen, setManageTypesOpen] = useState(false);
+
+  const hasUncategorized = projects.some((p) =>
+    isUncategorized(p.type, projectTypes)
+  );
+  const typeChips: string[] = [
+    "all",
+    ...BUILTIN_TYPE_SLUGS,
+    ...projectTypes.map((t) => t.slug),
+    ...(hasUncategorized ? ["uncategorized"] : []),
+  ];
 
   const filtered = projects.filter(
     (p) =>
       (stateFilter === "all" || p.state === stateFilter) &&
-      (typeFilter === "all" || p.type === typeFilter) &&
+      (typeFilter === "all" ||
+        (typeFilter === "uncategorized"
+          ? isUncategorized(p.type, projectTypes)
+          : p.type === typeFilter)) &&
       (!search ||
         p.name.toLowerCase().includes(search.toLowerCase()) ||
         p.oneLiner.toLowerCase().includes(search.toLowerCase()))
@@ -89,11 +110,11 @@ export default function Projects() {
           ))}
         </div>
         <div className="h-6 w-px bg-ink-800 mx-1" />
-        <div className="flex gap-1">
-          {types.map((t) => (
+        <div className="flex gap-1 flex-wrap items-center">
+          {typeChips.map((t) => (
             <button
               key={t}
-              onClick={() => setTypeFilter(t as any)}
+              onClick={() => setTypeFilter(t)}
               className={cn(
                 "px-2.5 py-1 text-xs rounded font-mono uppercase tracking-wider transition",
                 typeFilter === t
@@ -101,9 +122,20 @@ export default function Projects() {
                   : "text-ink-500 hover:text-ink-200 hover:bg-ink-800/60"
               )}
             >
-              {t === "all" ? "all types" : typeLabels[t]}
+              {t === "all"
+                ? "all types"
+                : t === "uncategorized"
+                ? UNCATEGORIZED_LABEL
+                : typeLabelFor(t, projectTypes)}
             </button>
           ))}
+          <button
+            onClick={() => setManageTypesOpen(true)}
+            title="Manage types"
+            className="inline-flex items-center justify-center w-7 h-7 rounded text-ink-500 hover:text-ink-200 hover:bg-ink-800/60 transition"
+          >
+            <SlidersHorizontal className="w-3.5 h-3.5" />
+          </button>
         </div>
       </div>
 
@@ -152,6 +184,10 @@ export default function Projects() {
       )}
 
       <NewProjectDialog open={newOpen} onClose={() => setNewOpen(false)} />
+      <ManageTypesDialog
+        open={manageTypesOpen}
+        onClose={() => setManageTypesOpen(false)}
+      />
     </div>
   );
 }
