@@ -11,6 +11,7 @@ import {
   Lightbulb,
   Clock,
   ChevronRight,
+  ChevronDown,
   Target,
   Pause,
   Play,
@@ -57,6 +58,7 @@ export default function ProjectDetail() {
   const deleteProject = useStore((s) => s.deleteProject);
   const [newTask, setNewTask] = useState("");
   const [editingNextAction, setEditingNextAction] = useState(false);
+  const [editingType, setEditingType] = useState(false);
   const [parkOpen, setParkOpen] = useState(false);
   const [decisionOpen, setDecisionOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -114,7 +116,39 @@ export default function ProjectDetail() {
                 className="w-2.5 h-2.5 rounded-full"
                 style={{ background: project.accentColor }}
               />
-              <TypeBadge type={project.type} />
+              {editingType ? (
+                <select
+                  autoFocus
+                  value={project.type}
+                  onChange={(e) => {
+                    updateProject(project.id, { type: e.target.value });
+                    setEditingType(false);
+                  }}
+                  onBlur={() => setEditingType(false)}
+                  className="bg-ink-950 border border-ink-700 rounded px-2 py-0.5 text-xs text-ink-100 outline-none focus:border-ink-500"
+                >
+                  {isUncategorized(project.type, projectTypes) && (
+                    <option value={project.type}>{UNCATEGORIZED_LABEL}</option>
+                  )}
+                  {[
+                    ...BUILTIN_TYPE_SLUGS,
+                    ...projectTypes.map((t) => t.slug),
+                  ].map((t) => (
+                    <option key={t} value={t}>
+                      {typeLabelFor(t, projectTypes)}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <button
+                  onClick={() => setEditingType(true)}
+                  title="Change type"
+                  className="group inline-flex items-center gap-1 -mx-1 px-1 rounded hover:bg-ink-800/60 transition"
+                >
+                  <TypeBadge type={project.type} />
+                  <ChevronDown className="w-3 h-3 text-ink-600 group-hover:text-ink-300" />
+                </button>
+              )}
               <span className="text-ink-700">·</span>
               <StateBadge state={project.state} />
               {isFocus && (
@@ -245,32 +279,6 @@ export default function ProjectDetail() {
               Meta
             </div>
             <div className="space-y-2.5 text-sm">
-              <MetaRow
-                label="Type"
-                value={
-                  <select
-                    value={project.type}
-                    onChange={(e) =>
-                      updateProject(project.id, { type: e.target.value })
-                    }
-                    className="bg-ink-950 border border-ink-800 rounded px-2 py-1 text-xs text-ink-200 outline-none focus:border-ink-600"
-                  >
-                    {isUncategorized(project.type, projectTypes) && (
-                      <option value={project.type}>
-                        {UNCATEGORIZED_LABEL}
-                      </option>
-                    )}
-                    {[
-                      ...BUILTIN_TYPE_SLUGS,
-                      ...projectTypes.map((t) => t.slug),
-                    ].map((t) => (
-                      <option key={t} value={t}>
-                        {typeLabelFor(t, projectTypes)}
-                      </option>
-                    ))}
-                  </select>
-                }
-              />
               <MetaRow label="Last touched" value={relativeTime(project.lastTouchedAt)} />
               {project.stack && (
                 <MetaRow
