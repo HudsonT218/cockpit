@@ -19,6 +19,12 @@ import {
   PauseCircle,
 } from "lucide-react";
 import { cn, relativeTime } from "@/lib/utils";
+import {
+  BUILTIN_TYPE_SLUGS,
+  typeLabelFor,
+  isUncategorized,
+  UNCATEGORIZED_LABEL,
+} from "@/lib/projectTypes";
 import type { ProjectState, TaskStatus } from "@/lib/types";
 import { useState } from "react";
 import ParkDialog from "@/components/dialogs/ParkDialog";
@@ -39,6 +45,7 @@ export default function ProjectDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const projects = useStore((s) => s.projects);
+  const projectTypes = useStore((s) => s.projectTypes);
   const tasks = useStore((s) => s.tasks);
   const decisions = useStore((s) => s.decisions);
   const updateProject = useStore((s) => s.updateProject);
@@ -238,6 +245,32 @@ export default function ProjectDetail() {
               Meta
             </div>
             <div className="space-y-2.5 text-sm">
+              <MetaRow
+                label="Type"
+                value={
+                  <select
+                    value={project.type}
+                    onChange={(e) =>
+                      updateProject(project.id, { type: e.target.value })
+                    }
+                    className="bg-ink-950 border border-ink-800 rounded px-2 py-1 text-xs text-ink-200 outline-none focus:border-ink-600"
+                  >
+                    {isUncategorized(project.type, projectTypes) && (
+                      <option value={project.type}>
+                        {UNCATEGORIZED_LABEL}
+                      </option>
+                    )}
+                    {[
+                      ...BUILTIN_TYPE_SLUGS,
+                      ...projectTypes.map((t) => t.slug),
+                    ].map((t) => (
+                      <option key={t} value={t}>
+                        {typeLabelFor(t, projectTypes)}
+                      </option>
+                    ))}
+                  </select>
+                }
+              />
               <MetaRow label="Last touched" value={relativeTime(project.lastTouchedAt)} />
               {project.stack && (
                 <MetaRow

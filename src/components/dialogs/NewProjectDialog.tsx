@@ -2,17 +2,28 @@ import { useEffect, useState } from "react";
 import Modal, { FormRow, ModalActions, inputCls } from "../Modal";
 import { useStore } from "@/lib/store";
 import type { ProjectState, ProjectType } from "@/lib/types";
-import { cn, stateLabels, typeLabels } from "@/lib/utils";
+import { cn, stateLabels } from "@/lib/utils";
+import { BUILTIN_TYPE_SLUGS, typeLabelFor } from "@/lib/projectTypes";
 
 const PALETTE = [
-  "#f59e0b",
-  "#14b8a6",
-  "#8b5cf6",
-  "#0ea5e9",
-  "#f43f5e",
-  "#84cc16",
-  "#ec4899",
-  "#06b6d4",
+  "#f59e0b", // amber
+  "#f97316", // orange
+  "#ef4444", // red
+  "#f43f5e", // rose
+  "#ec4899", // pink
+  "#d946ef", // fuchsia
+  "#a855f7", // purple
+  "#8b5cf6", // violet
+  "#6366f1", // indigo
+  "#3b82f6", // blue
+  "#0ea5e9", // sky
+  "#06b6d4", // cyan
+  "#14b8a6", // teal
+  "#10b981", // emerald
+  "#22c55e", // green
+  "#84cc16", // lime
+  "#eab308", // yellow
+  "#64748b", // slate
 ];
 
 export default function NewProjectDialog({
@@ -23,6 +34,11 @@ export default function NewProjectDialog({
   onClose: () => void;
 }) {
   const addProject = useStore((s) => s.addProject);
+  const projectTypes = useStore((s) => s.projectTypes);
+  const typeOptions = [
+    ...BUILTIN_TYPE_SLUGS,
+    ...projectTypes.map((t) => t.slug),
+  ];
   const [name, setName] = useState("");
   const [oneLiner, setOneLiner] = useState("");
   const [type, setType] = useState<ProjectType>("code");
@@ -67,9 +83,9 @@ export default function NewProjectDialog({
             onChange={(e) => setType(e.target.value as ProjectType)}
             className={inputCls()}
           >
-            {(["code", "business", "life"] as ProjectType[]).map((t) => (
+            {typeOptions.map((t) => (
               <option key={t} value={t}>
-                {typeLabels[t]}
+                {typeLabelFor(t, projectTypes)}
               </option>
             ))}
           </select>

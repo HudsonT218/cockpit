@@ -1,4 +1,6 @@
-export type ProjectType = "code" | "business" | "life";
+// Project type is a free-form slug: the built-in slugs ("code" | "business" |
+// "life") plus any user-defined slugs from public.project_types.
+export type ProjectType = string;
 export type ProjectState =
   | "active"
   | "on_hold"
@@ -25,6 +27,16 @@ export interface Project {
   lastTouchedAt: string;
   createdAt: string;
   resumeNote?: string;
+}
+
+// A user-defined custom project type (built-ins code/business/life are not
+// stored — see src/lib/projectTypes.ts).
+export interface ProjectTypeDef {
+  id: string;
+  label: string;
+  slug: string;
+  orderIndex: number;
+  createdAt: string;
 }
 
 export interface Task {

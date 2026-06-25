@@ -46,7 +46,10 @@ create table if not exists public.projects (
   id              uuid primary key default gen_random_uuid(),
   user_id         uuid not null references auth.users(id) on delete cascade,
   name            text not null,
-  type            project_type  not null default 'code',
+  -- type is free text (built-in slugs code/business/life + user-defined
+  -- slugs from public.project_types). The project_type enum below is kept
+  -- for backwards compatibility but no longer constrains this column.
+  type            text          not null default 'code',
   state           project_state not null default 'active',
   one_liner       text not null default '',
   accent_color    text not null default '#f59e0b',
@@ -440,6 +443,30 @@ create policy "owner crud daily_habits" on public.daily_habits
 
 drop policy if exists "owner crud habit_completions" on public.habit_completions;
 create policy "owner crud habit_completions" on public.habit_completions
+  for all using (auth.uid() = user_id)
+  with check  (auth.uid() = user_id);
+
+-- ============================================================
+-- project_types (user-defined custom project types)
+-- Built-in types (code/business/life) are NOT stored here; they live
+-- as code-side constants. This table holds only custom types.
+-- ============================================================
+create table if not exists public.project_types (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users(id) on delete cascade,
+  label       text not null,
+  slug        text not null,
+  order_index int  not null default 0,
+  created_at  timestamptz not null default now(),
+  unique (user_id, slug)
+);
+
+create index if not exists project_types_user_idx on public.project_types(user_id);
+
+alter table public.project_types enable row level security;
+
+drop policy if exists "owner crud project_types" on public.project_types;
+create policy "owner crud project_types" on public.project_types
   for all using (auth.uid() = user_id)
   with check  (auth.uid() = user_id);
 
