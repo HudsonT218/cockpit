@@ -238,7 +238,7 @@ export default function Layout() {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        className="flex-1 overflow-y-auto overflow-x-hidden relative pt-[calc(3rem_+_env(safe-area-inset-top))] md:pt-0 pb-14 md:pb-0"
+        className="flex-1 overflow-y-auto overflow-x-hidden relative pt-[calc(3rem_+_env(safe-area-inset-top))] md:pt-0 pb-[calc(3.5rem_+_env(safe-area-inset-bottom))] md:pb-0"
       >
         {(pull > 0 || refreshing) && (
           <div
@@ -267,7 +267,7 @@ export default function Layout() {
       <button
         onClick={() => setQuickAddOpen(true)}
         aria-label="Quick add task"
-        className="md:hidden fixed right-4 bottom-20 z-30 w-14 h-14 rounded-full bg-accent-amber text-ink-950 shadow-lg shadow-black/40 flex items-center justify-center active:scale-95 transition"
+        className="md:hidden fixed right-4 bottom-[calc(4.5rem_+_env(safe-area-inset-bottom))] z-30 w-14 h-14 rounded-full bg-accent-amber text-ink-950 shadow-lg shadow-black/40 flex items-center justify-center active:scale-95 transition"
       >
         <Plus className="w-6 h-6" />
       </button>
