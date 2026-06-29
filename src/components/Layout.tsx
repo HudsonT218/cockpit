@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import CommandPalette from "./CommandPalette";
 import SettingsDialog from "./dialogs/SettingsDialog";
+import BottomNav from "./BottomNav";
 import { useEffect, useState } from "react";
 
 const navItems = [
@@ -201,14 +202,11 @@ export default function Layout() {
         </button>
       </aside>
 
-      <main
-        className="flex-1 overflow-y-auto relative pt-12 md:pt-0"
-        style={{
-          paddingBottom: "env(safe-area-inset-bottom)",
-        }}
-      >
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative pt-[calc(3rem_+_env(safe-area-inset-top))] md:pt-0 pb-[calc(3.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
         <Outlet />
       </main>
+
+      <BottomNav />
 
       <CommandPalette
         open={paletteOpen}

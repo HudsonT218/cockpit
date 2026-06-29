@@ -86,7 +86,7 @@ export default function CommitHeatmap() {
         </div>
       </div>
 
-      <div className="flex gap-[3px] overflow-x-auto">
+      <div className="flex gap-[3px] overflow-x-auto max-w-full">
         {weeks.map((week, wi) => (
           <div key={wi} className="flex flex-col gap-[3px]">
             {week.map((day, di) => (
