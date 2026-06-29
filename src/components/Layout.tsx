@@ -194,7 +194,7 @@ export default function Layout() {
         </button>
       </aside>
 
-      <main className="flex-1 overflow-y-auto overflow-x-hidden relative pt-[calc(3rem_+_env(safe-area-inset-top))] md:pt-0 pb-[calc(3rem_+_env(safe-area-inset-bottom))] md:pb-0">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative pt-[calc(3rem_+_env(safe-area-inset-top))] md:pt-0 pb-16 md:pb-0">
         <Outlet />
       </main>
 
