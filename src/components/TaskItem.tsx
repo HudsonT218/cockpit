@@ -43,7 +43,7 @@ export default function TaskItem({
         className={cn(
           "group flex items-center gap-3 px-3 rounded-lg border border-transparent hover:border-ink-800 hover:bg-ink-900/50 transition cursor-pointer",
           draggable && "active:cursor-grabbing",
-          compact ? "py-1.5" : "py-2"
+          compact ? "py-2 sm:py-1.5" : "py-2.5 sm:py-2"
         )}
       >
         <button
