@@ -88,11 +88,11 @@ export default function Inbox() {
             <Plus className="w-3.5 h-3.5" /> Add
           </button>
         </div>
-        <div className="flex flex-wrap items-center gap-2 pl-6">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 pl-6 pr-2">
           <select
             value={projectId}
             onChange={(e) => setProjectId(e.target.value)}
-            className="bg-ink-950 border border-ink-800 rounded-md px-2 py-1 text-xs text-ink-200 outline-none"
+            className="w-full sm:w-auto max-w-full bg-ink-950 border border-ink-800 rounded-md px-2 py-1.5 text-xs text-ink-200 outline-none"
           >
             <option value="">No project</option>
             {projects
@@ -106,7 +106,7 @@ export default function Inbox() {
           <select
             value={energy}
             onChange={(e) => setEnergy(e.target.value as any)}
-            className="bg-ink-950 border border-ink-800 rounded-md px-2 py-1 text-xs text-ink-200 outline-none"
+            className="w-full sm:w-auto bg-ink-950 border border-ink-800 rounded-md px-2 py-1.5 text-xs text-ink-200 outline-none"
           >
             <option value="">Energy</option>
             {(Object.entries(energyLabels) as any).map(([k, v]: any) => (
@@ -118,7 +118,7 @@ export default function Inbox() {
           <select
             value={recurrence}
             onChange={(e) => setRecurrence(e.target.value as Recurrence)}
-            className="bg-ink-950 border border-ink-800 rounded-md px-2 py-1 text-xs text-ink-200 outline-none"
+            className="w-full sm:w-auto bg-ink-950 border border-ink-800 rounded-md px-2 py-1.5 text-xs text-ink-200 outline-none"
           >
             <option value="none">Once</option>
             <option value="daily">Daily</option>

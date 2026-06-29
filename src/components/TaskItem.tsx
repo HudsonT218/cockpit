@@ -52,13 +52,13 @@ export default function TaskItem({
             toggleTask(task.id);
           }}
           className={cn(
-            "w-4 h-4 rounded border flex items-center justify-center shrink-0 transition",
+            "w-5 h-5 rounded border flex items-center justify-center shrink-0 transition",
             isDone
               ? "bg-emerald-500/80 border-emerald-500"
               : "border-ink-600 hover:border-ink-400"
           )}
         >
-          {isDone && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+          {isDone && <Check className="w-3.5 h-3.5 text-white" strokeWidth={3} />}
         </button>
 
         <div className="flex-1 min-w-0 flex items-center gap-2">
@@ -93,14 +93,14 @@ export default function TaskItem({
             <Link
               to={`/projects/${project.id}`}
               onClick={(e) => e.stopPropagation()}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-ink-800/60 hover:bg-ink-800 transition"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded bg-ink-800/60 hover:bg-ink-800 transition max-w-[45%] min-w-0"
               style={{ color: project.accentColor }}
             >
               <span
-                className="w-1 h-1 rounded-full"
+                className="w-1 h-1 rounded-full shrink-0"
                 style={{ background: project.accentColor }}
               />
-              {project.name}
+              <span className="truncate">{project.name}</span>
             </Link>
           )}
         </div>
@@ -111,7 +111,7 @@ export default function TaskItem({
             deleteTask(task.id);
           }}
           title="Delete task"
-          className="opacity-30 group-hover:opacity-100 text-ink-500 hover:text-rose-400 transition"
+          className="shrink-0 p-1 -m-1 opacity-60 md:opacity-30 md:group-hover:opacity-100 text-ink-500 hover:text-rose-400 transition"
         >
           <Trash2 className="w-3.5 h-3.5" />
         </button>

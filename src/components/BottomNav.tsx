@@ -37,7 +37,7 @@ export default function BottomNav() {
           end={t.end}
           className={({ isActive }) =>
             cn(
-              "flex-1 flex flex-col items-center justify-center gap-0.5 h-14 text-[10px] font-medium transition",
+              "flex-1 flex flex-col items-center justify-center gap-0.5 h-12 text-[10px] leading-none font-medium transition",
               isActive
                 ? "text-accent-amber"
                 : "text-ink-500 hover:text-ink-300"
@@ -45,7 +45,7 @@ export default function BottomNav() {
           }
         >
           <div className="relative">
-            <t.icon className="w-5 h-5" />
+            <t.icon className="w-[18px] h-[18px]" />
             {t.label === "Inbox" && inboxCount > 0 && (
               <span className="absolute -top-1.5 -right-2 min-w-[15px] h-[15px] px-1 rounded-full bg-accent-amber text-ink-950 text-[9px] font-semibold flex items-center justify-center">
                 {inboxCount}

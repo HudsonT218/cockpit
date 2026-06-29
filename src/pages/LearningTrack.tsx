@@ -69,7 +69,6 @@ export default function LearningTrack() {
   }).format(new Date());
 
   return (
-    // TODO(mobile): responsive pass — designed for ≥1024px, cramped below.
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -85,11 +84,11 @@ export default function LearningTrack() {
           <ArrowLeft className="w-3.5 h-3.5" /> Learning
         </Link>
 
-        <div className="flex items-start justify-between gap-4 mt-3">
+        <div className="flex items-start justify-between gap-3 mt-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2.5">
               <span className={cn("w-2.5 h-2.5 rounded-full shrink-0", accent.bg)} />
-              <h1 className="text-3xl font-semibold tracking-tight text-ink-50">
+              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-ink-50 min-w-0 break-words">
                 {track.name}
               </h1>
             </div>

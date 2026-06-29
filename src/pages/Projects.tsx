@@ -85,21 +85,21 @@ export default function Projects() {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap gap-2 mb-6 items-center">
+      <div className="flex flex-col gap-2 mb-6 sm:flex-row sm:flex-wrap sm:items-center">
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search projects…"
-          className="bg-ink-900 border border-ink-800 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-ink-600 w-60"
+          className="bg-ink-900 border border-ink-800 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-ink-600 w-full sm:w-60"
         />
-        <div className="h-6 w-px bg-ink-800 mx-1" />
-        <div className="flex gap-1">
+        <div className="h-6 w-px bg-ink-800 mx-1 hidden sm:block" />
+        <div className="flex gap-1 overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0">
           {states.map((s) => (
             <button
               key={s}
               onClick={() => setStateFilter(s as any)}
               className={cn(
-                "px-2.5 py-1 text-xs rounded font-mono uppercase tracking-wider transition",
+                "shrink-0 whitespace-nowrap px-2.5 py-1 text-xs rounded font-mono uppercase tracking-wider transition",
                 stateFilter === s
                   ? "bg-ink-700 text-ink-50"
                   : "text-ink-500 hover:text-ink-200 hover:bg-ink-800/60"
@@ -109,14 +109,14 @@ export default function Projects() {
             </button>
           ))}
         </div>
-        <div className="h-6 w-px bg-ink-800 mx-1" />
-        <div className="flex gap-1 flex-wrap items-center">
+        <div className="h-6 w-px bg-ink-800 mx-1 hidden sm:block" />
+        <div className="flex gap-1 items-center overflow-x-auto -mx-4 px-4 sm:mx-0 sm:px-0 sm:flex-wrap">
           {typeChips.map((t) => (
             <button
               key={t}
               onClick={() => setTypeFilter(t)}
               className={cn(
-                "px-2.5 py-1 text-xs rounded font-mono uppercase tracking-wider transition",
+                "shrink-0 whitespace-nowrap px-2.5 py-1 text-xs rounded font-mono uppercase tracking-wider transition",
                 typeFilter === t
                   ? "bg-ink-700 text-ink-50"
                   : "text-ink-500 hover:text-ink-200 hover:bg-ink-800/60"
@@ -132,7 +132,7 @@ export default function Projects() {
           <button
             onClick={() => setManageTypesOpen(true)}
             title="Manage types"
-            className="inline-flex items-center justify-center w-7 h-7 rounded text-ink-500 hover:text-ink-200 hover:bg-ink-800/60 transition"
+            className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded text-ink-500 hover:text-ink-200 hover:bg-ink-800/60 transition"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
           </button>
