@@ -44,6 +44,41 @@ export default function Planner() {
     (t) => t.status !== "done" && !taskIdsOnAnyBlock.has(t.id)
   );
 
+  // Touch fallback (HTML5 drag doesn't fire on touch): schedule a pool task
+  // onto a day — today if it's in the viewed week, else the week's first day —
+  // auto-placed after that day's last block (else 09:00).
+  const todayISO = isoDate(new Date());
+  const mobileScheduleDay = days.some((d) => isoDate(d) === todayISO)
+    ? todayISO
+    : isoDate(days[0]);
+  const mobileScheduleDayLabel = dayName(new Date(mobileScheduleDay + "T00:00"));
+  const scheduleTaskToDay = async (taskId: string, dateISO: string) => {
+    const dayBlocks = blocks
+      .filter((b) => b.date === dateISO)
+      .sort((a, b) => a.start.localeCompare(b.start));
+    const lastEnd = dayBlocks.length
+      ? dayBlocks[dayBlocks.length - 1].end
+      : "09:00";
+    const [h, m] = lastEnd.split(":").map(Number);
+    const startM = h * 60 + m + (dayBlocks.length ? 15 : 0);
+    const endM = Math.min(24 * 60, startM + 60);
+    const fmt = (mins: number) =>
+      `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(
+        mins % 60
+      ).padStart(2, "0")}`;
+    const taskObj = tasks.find((t) => t.id === taskId);
+    await addBlock({
+      date: dateISO,
+      start: fmt(startM),
+      end: fmt(endM),
+      label: taskObj?.title ?? "Block",
+      energyTag: taskObj?.energyTag,
+      taskIds: [taskId],
+      projectId: taskObj?.projectId,
+    });
+    await updateTask(taskId, { scheduledFor: dateISO });
+  };
+
   return (
     <div className="p-4 md:p-8 pb-16 max-w-[1600px]">
       <div className="flex items-end justify-between mb-6">
@@ -122,6 +157,15 @@ export default function Planner() {
                         </span>
                       )}
                     </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        void scheduleTaskToDay(t.id, mobileScheduleDay);
+                      }}
+                      className="md:hidden mt-2 w-full inline-flex items-center justify-center gap-1.5 text-xs font-mono text-accent-amber border border-accent-amber/30 rounded px-2.5 py-2 min-h-[40px] hover:bg-accent-amber/10 transition"
+                    >
+                      <Clock className="w-3 h-3" /> Schedule · {mobileScheduleDayLabel}
+                    </button>
                   </div>
                 );
               })}
@@ -131,7 +175,7 @@ export default function Planner() {
 
         {/* Week grid */}
         <div className="col-span-12 md:col-span-9 xl:col-span-10">
-          <div className="grid grid-cols-7 gap-2">
+          <div className="grid grid-cols-1 md:grid-cols-7 gap-2">
             {days.map((d) => {
               const dateISO = isoDate(d);
               const isToday = dateISO === isoDate(new Date());
@@ -198,7 +242,7 @@ export default function Planner() {
                     }
                   }}
                   className={cn(
-                    "rounded-xl border bg-ink-900/30 p-3 min-h-[400px] transition",
+                    "rounded-xl border bg-ink-900/30 p-3 min-h-0 md:min-h-[400px] transition",
                     isToday
                       ? "border-accent-amber/30 bg-accent-amber/[0.02]"
                       : "border-ink-800",
@@ -231,7 +275,7 @@ export default function Planner() {
                         setDialogDate(dateISO);
                       }}
                       title="New block"
-                      className="w-6 h-6 flex items-center justify-center rounded-md text-ink-500 hover:text-ink-50 hover:bg-ink-800 transition"
+                      className="w-9 h-9 md:w-6 md:h-6 flex items-center justify-center rounded-md text-ink-500 hover:text-ink-50 hover:bg-ink-800 transition"
                     >
                       <Plus className="w-3.5 h-3.5" />
                     </button>
@@ -336,7 +380,8 @@ export default function Planner() {
           </div>
 
           <div className="mt-4 text-[11px] text-ink-600 font-mono text-center">
-            drag tasks onto a day · click a block to edit · + to add manually
+            tap "Schedule" on a task (or drag it onto a day) · tap a block to
+            edit · + to add manually
           </div>
         </div>
       </div>
