@@ -11,13 +11,16 @@ import {
   Sparkles,
   LogOut,
   X,
+  Plus,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
 import CommandPalette from "./CommandPalette";
 import SettingsDialog from "./dialogs/SettingsDialog";
+import QuickAddDialog from "./dialogs/QuickAddDialog";
 import BottomNav from "./BottomNav";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const navItems = [
   { to: "/", label: "Today", icon: LayoutDashboard, end: true },
@@ -33,12 +36,48 @@ export default function Layout() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
   const location = useLocation();
   const tasks = useStore((s) => s.tasks);
   const projects = useStore((s) => s.projects);
   const user = useStore((s) => s.user);
   const displayName = useStore((s) => s.displayName);
   const signOut = useStore((s) => s.signOut);
+  const loadAll = useStore((s) => s.loadAll);
+
+  // Pull-to-refresh (mobile): pull down at the top of the page to reload data.
+  const mainRef = useRef<HTMLElement>(null);
+  const touchStartY = useRef<number | null>(null);
+  const [pull, setPull] = useState(0);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current =
+      (mainRef.current?.scrollTop ?? 0) <= 0 ? e.touches[0].clientY : null;
+  };
+  const onTouchMove = (e: React.TouchEvent) => {
+    if (touchStartY.current == null || refreshing) return;
+    if ((mainRef.current?.scrollTop ?? 0) > 0) {
+      touchStartY.current = null;
+      setPull(0);
+      return;
+    }
+    const dy = e.touches[0].clientY - touchStartY.current;
+    if (dy > 0) setPull(Math.min(dy * 0.5, 80));
+  };
+  const onTouchEnd = async () => {
+    if (touchStartY.current == null) return;
+    touchStartY.current = null;
+    if (pull > 50 && !refreshing) {
+      setRefreshing(true);
+      try {
+        await loadAll();
+      } finally {
+        setRefreshing(false);
+      }
+    }
+    setPull(0);
+  };
   const activeCount = projects.filter((p) => p.state === "active").length;
   const inboxCount = tasks.filter(
     (t) => !t.projectId && t.status !== "done"
@@ -194,9 +233,44 @@ export default function Layout() {
         </button>
       </aside>
 
-      <main className="flex-1 overflow-y-auto overflow-x-hidden relative pt-[calc(3rem_+_env(safe-area-inset-top))] md:pt-0 pb-16 md:pb-0">
+      <main
+        ref={mainRef}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        className="flex-1 overflow-y-auto overflow-x-hidden relative pt-[calc(3rem_+_env(safe-area-inset-top))] md:pt-0 pb-14 md:pb-0"
+      >
+        {(pull > 0 || refreshing) && (
+          <div
+            className="md:hidden absolute left-0 right-0 flex justify-center z-20 pointer-events-none"
+            style={{
+              top: `calc(env(safe-area-inset-top) + ${Math.max(
+                10,
+                pull - 20
+              )}px)`,
+            }}
+          >
+            <div className="bg-ink-800/90 border border-ink-700 rounded-full p-2 shadow-lg">
+              <RefreshCw
+                className={cn(
+                  "w-4 h-4 text-ink-200",
+                  refreshing && "animate-spin"
+                )}
+              />
+            </div>
+          </div>
+        )}
         <Outlet />
       </main>
+
+      {/* Mobile quick-capture */}
+      <button
+        onClick={() => setQuickAddOpen(true)}
+        aria-label="Quick add task"
+        className="md:hidden fixed right-4 bottom-20 z-30 w-14 h-14 rounded-full bg-accent-amber text-ink-950 shadow-lg shadow-black/40 flex items-center justify-center active:scale-95 transition"
+      >
+        <Plus className="w-6 h-6" />
+      </button>
 
       <BottomNav />
 
@@ -208,6 +282,10 @@ export default function Layout() {
       <SettingsDialog
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
+      />
+      <QuickAddDialog
+        open={quickAddOpen}
+        onClose={() => setQuickAddOpen(false)}
       />
     </div>
   );
