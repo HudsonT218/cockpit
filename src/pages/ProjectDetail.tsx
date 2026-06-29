@@ -101,7 +101,7 @@ export default function ProjectDetail() {
         style={{ background: project.accentColor }}
       />
 
-      <div className="relative p-8 pb-16 max-w-[1200px]">
+      <div className="relative p-4 md:p-8 pb-16 max-w-[1200px]">
         <Link
           to="/projects"
           className="inline-flex items-center gap-1 text-xs text-ink-500 hover:text-ink-200 font-mono mb-6 transition"
@@ -110,7 +110,7 @@ export default function ProjectDetail() {
         </Link>
 
         {/* Header */}
-        <div className="flex items-start justify-between gap-6 mb-8">
+        <div className="flex items-start justify-between gap-3 sm:gap-6 mb-8">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-3">
               <div
@@ -345,7 +345,7 @@ export default function ProjectDetail() {
                   value={newTask}
                   onChange={(e) => setNewTask(e.target.value)}
                   placeholder="Quick add task…"
-                  className="bg-ink-950 border border-ink-800 rounded-lg px-3 py-1.5 text-xs outline-none w-60"
+                  className="bg-ink-950 border border-ink-800 rounded-lg px-3 py-1.5 text-xs outline-none w-full md:w-60"
                 />
                 <button
                   type="submit"
@@ -355,7 +355,7 @@ export default function ProjectDetail() {
                 </button>
               </form>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {statusOrder.map((status) => {
                 const items = projectTasks.filter((t) => t.status === status);
                 const isDropTarget = draggingTaskId !== null;

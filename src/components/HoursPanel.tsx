@@ -116,34 +116,38 @@ export default function HoursPanel({ project }: { project: Project }) {
         {completed.map((s) => (
           <div
             key={s.id}
-            className="group flex items-center gap-3 px-3 py-2 rounded-lg border border-ink-800 bg-ink-950/40"
+            className="group flex items-center gap-2 px-3 py-2 rounded-lg border border-ink-800 bg-ink-950/40"
           >
-            <div className="w-20 shrink-0 text-xs font-mono text-ink-400">
-              {formatDate(s.startedAt)}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2 text-xs flex-wrap">
+                <span className="font-mono text-ink-100">
+                  {formatDuration(sessionMinutes(s))}
+                </span>
+                <span className="text-ink-400">{formatDate(s.startedAt)}</span>
+                <span className="text-ink-500">
+                  {timeOf(s.startedAt)} – {timeOf(s.endedAt as string)}
+                </span>
+              </div>
+              {s.note && (
+                <div className="text-xs text-ink-500 truncate mt-0.5">
+                  {s.note}
+                </div>
+              )}
             </div>
-            <div className="w-32 shrink-0 text-xs text-ink-400">
-              {timeOf(s.startedAt)} – {timeOf(s.endedAt as string)}
-            </div>
-            <div className="w-16 shrink-0 text-xs font-mono text-ink-100">
-              {formatDuration(sessionMinutes(s))}
-            </div>
-            <div className="flex-1 min-w-0 text-xs text-ink-500 truncate">
-              {s.note}
-            </div>
-            <div className="flex items-center gap-1 shrink-0 opacity-0 group-hover:opacity-100 transition">
+            <div className="flex items-center gap-1 shrink-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition">
               <button
                 onClick={() => setEditing(s)}
                 title="Edit session"
-                className="text-ink-500 hover:text-ink-200 p-1"
+                className="text-ink-500 hover:text-ink-200 p-1.5"
               >
-                <Pencil className="w-3.5 h-3.5" />
+                <Pencil className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setDeleting(s)}
                 title="Delete session"
-                className="text-ink-500 hover:text-rose-400 p-1"
+                className="text-ink-500 hover:text-rose-400 p-1.5"
               >
-                <Trash2 className="w-3.5 h-3.5" />
+                <Trash2 className="w-4 h-4" />
               </button>
             </div>
           </div>

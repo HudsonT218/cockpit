@@ -10,7 +10,6 @@ import {
   Command,
   Sparkles,
   LogOut,
-  Menu,
   X,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -69,13 +68,6 @@ export default function Layout() {
         className="md:hidden fixed top-0 left-0 right-0 z-30 flex items-center justify-between px-4 h-12 bg-ink-950/95 backdrop-blur border-b border-ink-800/80"
         style={{ paddingTop: "env(safe-area-inset-top)" }}
       >
-        <button
-          onClick={() => setDrawerOpen(true)}
-          className="p-1.5 -ml-1.5 rounded hover:bg-ink-800/50 text-ink-200 transition"
-          aria-label="Open menu"
-        >
-          <Menu className="w-5 h-5" />
-        </button>
         <div className="flex items-center gap-2">
           <div className="w-6 h-6 rounded-md bg-gradient-to-br from-accent-amber to-accent-rose flex items-center justify-center">
             <Sparkles className="w-3.5 h-3.5 text-white" />
@@ -83,9 +75,9 @@ export default function Layout() {
           <span className="text-sm font-semibold tracking-tight">Cockpit</span>
         </div>
         <button
-          onClick={() => setSettingsOpen(true)}
+          onClick={() => setDrawerOpen(true)}
           className="w-7 h-7 rounded-full bg-gradient-to-br from-accent-amber to-accent-rose text-ink-950 text-[11px] font-semibold flex items-center justify-center"
-          aria-label="Settings"
+          aria-label="Open menu"
         >
           {userLabel.slice(0, 1).toUpperCase()}
         </button>
@@ -202,7 +194,7 @@ export default function Layout() {
         </button>
       </aside>
 
-      <main className="flex-1 overflow-y-auto overflow-x-hidden relative pt-[calc(3rem_+_env(safe-area-inset-top))] md:pt-0 pb-[calc(3.5rem_+_env(safe-area-inset-bottom))] md:pb-0">
+      <main className="flex-1 overflow-y-auto overflow-x-hidden relative pt-[calc(3rem_+_env(safe-area-inset-top))] md:pt-0 pb-[calc(3rem_+_env(safe-area-inset-bottom))] md:pb-0">
         <Outlet />
       </main>
 
