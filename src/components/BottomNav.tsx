@@ -27,8 +27,8 @@ export default function BottomNav() {
 
   return (
     <nav
-      className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-stretch border-t border-ink-800/80 bg-ink-950/95 backdrop-blur"
-      style={{ paddingBottom: "min(env(safe-area-inset-bottom), 0.375rem)" }}
+      className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-stretch border-t border-ink-800 bg-ink-900/95 backdrop-blur-xl"
+      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       {tabs.map((t) => (
         <NavLink
@@ -37,7 +37,7 @@ export default function BottomNav() {
           end={t.end}
           className={({ isActive }) =>
             cn(
-              "flex-1 flex flex-col items-center justify-center gap-0.5 py-1.5 text-[11px] leading-none font-medium transition",
+              "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[11px] leading-none font-medium transition",
               isActive
                 ? "text-accent-amber"
                 : "text-ink-500 hover:text-ink-300"

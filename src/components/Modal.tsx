@@ -33,7 +33,7 @@ export default function Modal({
           exit={{ opacity: 0 }}
           transition={{ duration: 0.15 }}
           onClick={onClose}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4"
+          className="fixed inset-0 z-50 flex items-start sm:items-center justify-center bg-black/60 backdrop-blur-sm p-4 pt-[max(3.5rem,env(safe-area-inset-top))] sm:pt-4"
         >
           <motion.div
             initial={{ y: -8, opacity: 0 }}
@@ -42,7 +42,7 @@ export default function Modal({
             transition={{ duration: 0.15 }}
             onClick={(e) => e.stopPropagation()}
             style={{ width }}
-            className="max-w-[92vw] bg-ink-900 border border-ink-700 rounded-xl shadow-2xl shadow-black/40"
+            className="max-w-[92vw] max-h-[85vh] overflow-y-auto bg-ink-900 border border-ink-700 rounded-xl shadow-2xl shadow-black/40"
           >
             <div className="flex items-center justify-between px-5 py-3 border-b border-ink-800">
               <div className="text-sm font-medium text-ink-100">{title}</div>
