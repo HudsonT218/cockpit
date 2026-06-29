@@ -69,6 +69,7 @@ export default function DayPlanner() {
   const [collapsedProjects, setCollapsedProjects] = useState<Record<string, boolean>>({});
   const timelineRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const timelineSectionRef = useRef<HTMLElement>(null);
 
   const todayISO = isoDate(new Date());
   const isToday = date === todayISO;
@@ -179,6 +180,26 @@ export default function DayPlanner() {
     await updateTask(taskId, { scheduledFor: date });
   };
 
+  // Touch fallback: place a tapped task after the day's last block (else 9:00).
+  const defaultScheduleStart = () => {
+    const dayBlocks = blocks
+      .filter((b) => b.date === date)
+      .sort((a, b) => a.start.localeCompare(b.start));
+    if (!dayBlocks.length) return 9 * 60;
+    const lastEnd = timeToMinutes(dayBlocks[dayBlocks.length - 1].end);
+    return Math.min(DAY_END_HOUR * 60 - 60, lastEnd + 15);
+  };
+
+  // Tap-to-schedule (touch): create the block, then bring the timeline into
+  // view so the user sees where it landed (pool sits above it on mobile).
+  const scheduleTaskFromPool = async (taskId: string) => {
+    await scheduleTaskAt(taskId, defaultScheduleStart());
+    timelineSectionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   const onDropOnTimeline = async (e: React.DragEvent) => {
     if (!timelineRef.current) return;
     const rect = timelineRef.current.getBoundingClientRect();
@@ -211,16 +232,16 @@ export default function DayPlanner() {
 
   return (
     <div className="p-4 md:p-8 pb-16 max-w-[1600px]">
-      <div className="flex items-end justify-between mb-6">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-6">
         <div>
           <div className="text-xs uppercase tracking-[0.2em] text-ink-500 font-mono mb-1">
             Focus mode · single day
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
             Plan the day
           </h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <button
             onClick={() => setDate(isoDate(addDays(new Date(date + "T00:00"), -1)))}
             className="p-2 text-ink-400 hover:text-ink-100 hover:bg-ink-800/60 rounded transition"
@@ -289,6 +310,7 @@ export default function DayPlanner() {
                     isDragging={draggingTask === t.id}
                     onStart={() => setDraggingTask(t.id)}
                     onEnd={() => setDraggingTask(null)}
+                    onSchedule={() => scheduleTaskFromPool(t.id)}
                     showDate
                   />
                 ))}
@@ -313,6 +335,7 @@ export default function DayPlanner() {
                     isDragging={draggingTask === t.id}
                     onStart={() => setDraggingTask(t.id)}
                     onEnd={() => setDraggingTask(null)}
+                    onSchedule={() => scheduleTaskFromPool(t.id)}
                   />
                 ))}
               </div>
@@ -368,6 +391,7 @@ export default function DayPlanner() {
                             isDragging={draggingTask === t.id}
                             onStart={() => setDraggingTask(t.id)}
                             onEnd={() => setDraggingTask(null)}
+                    onSchedule={() => scheduleTaskFromPool(t.id)}
                             compact
                             hideProject
                           />
@@ -383,7 +407,10 @@ export default function DayPlanner() {
         </aside>
 
         {/* RIGHT: timeline */}
-        <main className="col-span-12 lg:col-span-8 xl:col-span-9">
+        <main
+          ref={timelineSectionRef}
+          className="col-span-12 lg:col-span-8 xl:col-span-9 scroll-mt-16"
+        >
           <div className="flex items-center justify-between mb-2 px-1 h-[28px]">
             <div className="text-[10px] uppercase tracking-[0.25em] text-ink-500 font-mono">
               {dayBlocks.length} {dayBlocks.length === 1 ? "block" : "blocks"} ·{" "}
@@ -418,11 +445,10 @@ export default function DayPlanner() {
           <div
             ref={scrollRef}
             className={cn(
-              "rounded-xl border border-ink-800 bg-ink-900/30 overflow-y-auto transition pt-3",
+              "rounded-xl border border-ink-800 bg-ink-900/30 overflow-y-auto transition pt-3 max-h-none md:max-h-[calc(100vh-18rem)]",
               (draggingTask || draggingBlock) &&
                 "border-dashed border-accent-amber/40"
             )}
-            style={{ maxHeight: "calc(100vh - 18rem)" }}
           >
           <div
             ref={timelineRef}
@@ -464,7 +490,7 @@ export default function DayPlanner() {
               return (
                 <div
                   key={e.id}
-                  className="absolute left-14 right-[55%] rounded-md bg-ink-800/60 border-l-2 border-ink-500 px-2 py-1 overflow-hidden pointer-events-none"
+                  className="absolute left-12 right-[58%] md:left-14 md:right-[55%] z-10 rounded-md bg-ink-800/60 border-l-2 border-ink-500 px-2 py-1 overflow-hidden pointer-events-none"
                   style={{ top, height }}
                 >
                   <div className="text-[10px] font-mono text-ink-400">
@@ -500,7 +526,10 @@ export default function DayPlanner() {
                     setEditingRoutine(r);
                     setRoutineDialogOpen(true);
                   }}
-                  className="absolute left-[48%] right-2 rounded-md bg-accent-amber/[0.05] border border-dashed border-accent-amber/30 px-2.5 py-1.5 cursor-pointer hover:bg-accent-amber/[0.1] hover:border-accent-amber/50 transition overflow-hidden group"
+                  className={cn(
+                    "absolute right-2 md:left-[48%] rounded-md bg-accent-amber/[0.05] border border-dashed border-accent-amber/30 px-2.5 py-1.5 cursor-pointer hover:bg-accent-amber/[0.1] hover:border-accent-amber/50 transition overflow-hidden group",
+                    dayEvents.length > 0 ? "left-[44%]" : "left-12"
+                  )}
                   style={{ top, height }}
                 >
                   {proj && (
@@ -550,7 +579,8 @@ export default function DayPlanner() {
                     setDialogOpen(true);
                   }}
                   className={cn(
-                    "absolute left-[48%] right-2 rounded-md bg-ink-950/90 border border-ink-700 px-2.5 py-1.5 cursor-pointer hover:border-ink-500 transition overflow-hidden group",
+                    "absolute right-2 md:left-[48%] rounded-md bg-ink-950/90 border border-ink-700 px-2.5 py-1.5 cursor-pointer hover:border-ink-500 transition overflow-hidden group",
+                    dayEvents.length > 0 ? "left-[44%]" : "left-12",
                     draggingBlock === b.id && "opacity-40"
                   )}
                   style={{ top, height }}
@@ -649,6 +679,7 @@ function DraggableTask({
   isDragging,
   onStart,
   onEnd,
+  onSchedule,
   compact = false,
   hideProject = false,
   showDate = false,
@@ -658,6 +689,7 @@ function DraggableTask({
   isDragging: boolean;
   onStart: () => void;
   onEnd: () => void;
+  onSchedule?: () => void;
   compact?: boolean;
   hideProject?: boolean;
   showDate?: boolean;
@@ -698,6 +730,17 @@ function DraggableTask({
           </span>
         )}
       </div>
+      {onSchedule && (
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onSchedule();
+          }}
+          className="md:hidden mt-1.5 inline-flex items-center justify-center gap-1.5 text-xs font-mono text-accent-amber border border-accent-amber/30 rounded px-2.5 py-2 min-h-[40px] hover:bg-accent-amber/10 transition"
+        >
+          <Clock className="w-2.5 h-2.5" /> Schedule
+        </button>
+      )}
     </div>
   );
 }

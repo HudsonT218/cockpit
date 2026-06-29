@@ -81,8 +81,8 @@ export default function Today() {
   return (
     <div className="p-4 md:p-8 pb-16 max-w-[1400px]">
       {/* header */}
-      <div className="flex items-end justify-between mb-6">
-        <div>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-6">
+        <div className="min-w-0">
           <div className="text-xs uppercase tracking-[0.2em] text-ink-500 font-mono mb-1">
             {new Intl.DateTimeFormat("en-US", {
               weekday: "long",
@@ -90,14 +90,14 @@ export default function Today() {
               day: "numeric",
             }).format(now)}
           </div>
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight">
             {greeting}
             {displayName || user?.email
               ? `, ${(displayName || user!.email!).split("@")[0].split(" ")[0]}.`
               : "."}
           </h1>
         </div>
-        <div className="flex items-center gap-4 text-sm text-ink-400">
+        <div className="flex items-center gap-4 text-sm text-ink-400 shrink-0">
           <div className="flex items-center gap-1.5">
             <Flame className="w-4 h-4 text-accent-amber" />
             <span className="font-mono">{streak} day streak</span>
@@ -128,7 +128,7 @@ export default function Today() {
                 : undefined,
             }}
           />
-          <div className="relative p-8">
+          <div className="relative p-5 sm:p-8">
             <div className="flex items-center gap-2 mb-6">
               <Sparkles className="w-3.5 h-3.5 text-accent-amber" />
               <span className="text-[10px] uppercase tracking-[0.25em] text-ink-500 font-mono">
@@ -149,22 +149,22 @@ export default function Today() {
                     {focusProject.name}
                   </span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-semibold tracking-tight text-ink-50 leading-tight mb-2">
+                <h2 className="text-2xl sm:text-3xl md:text-4xl font-semibold tracking-tight text-ink-50 leading-tight mb-2">
                   {focusProject.nextAction ?? "Pick a next action."}
                 </h2>
                 <p className="text-ink-400 text-base mb-6 max-w-2xl">
                   {focusProject.oneLiner}
                 </p>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <Link
                     to={`/projects/${focusProject.id}`}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-ink-50 text-ink-950 rounded-lg text-sm font-medium hover:bg-white transition"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 bg-ink-50 text-ink-950 rounded-lg text-sm font-medium hover:bg-white transition"
                   >
                     Open project <ArrowRight className="w-3.5 h-3.5" />
                   </Link>
                   <Link
                     to="/day"
-                    className="inline-flex items-center gap-2 px-4 py-2 border border-ink-700 text-ink-200 rounded-lg text-sm hover:bg-ink-800 transition"
+                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2 border border-ink-700 text-ink-200 rounded-lg text-sm hover:bg-ink-800 transition"
                   >
                     <Calendar className="w-3.5 h-3.5" /> Plan the day
                   </Link>
@@ -261,7 +261,7 @@ export default function Today() {
               view all →
             </Link>
           </div>
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {activeProjects.slice(0, 3).map((p) => (
               <Link
                 key={p.id}
