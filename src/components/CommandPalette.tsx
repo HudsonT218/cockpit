@@ -13,6 +13,7 @@ import {
   LogOut,
   Settings,
   GraduationCap,
+  Repeat,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useLearningStore } from "@/lib/learningStore";
@@ -32,10 +33,12 @@ export default function CommandPalette({
   open,
   onClose,
   onOpenSettings,
+  onNewHabit,
 }: {
   open: boolean;
   onClose: () => void;
   onOpenSettings?: () => void;
+  onNewHabit?: () => void;
 }) {
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
@@ -79,6 +82,23 @@ export default function CommandPalette({
         section: "Navigate",
         icon: GraduationCap,
         run: () => navigate("/learning"),
+      },
+      {
+        id: "nav-habits",
+        label: "Go to Habits",
+        section: "Navigate",
+        icon: Repeat,
+        run: () => navigate("/habits"),
+      },
+      {
+        id: "new-habit",
+        label: "New habit",
+        section: "Actions",
+        icon: Plus,
+        run: () => {
+          navigate("/habits");
+          onNewHabit?.();
+        },
       },
       {
         id: "nav-inbox",
@@ -172,7 +192,7 @@ export default function CommandPalette({
       run: () => navigate(`/projects/${p.id}`),
     }));
     return [...base, ...projectCmds, ...openProject];
-  }, [projects, navigate, setFocusProject, importFromLocalStorage, loadDemoData, seedFinanceTrack, signOut, onOpenSettings]);
+  }, [projects, navigate, setFocusProject, importFromLocalStorage, loadDemoData, seedFinanceTrack, signOut, onOpenSettings, onNewHabit]);
 
   const filtered = useMemo(() => {
     const q = query.toLowerCase().trim();

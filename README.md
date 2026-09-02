@@ -8,12 +8,13 @@ Keep track of what's active, what's on ice, what's shipped. Plan your day around
 
 - **Portfolio view** of every project (active / on hold / waiting / shipped / idea)
 - **Today view** with a single "focus" card, today's blocks, calendar events, and tasks
-- **Day Planner** — single-day time-grid with drag-to-schedule from a pool of carryover tasks, inbox, and every open project task
-- **Week Planner** — seven-day view with drag-between-days scheduling
+- **Day Planner**: single-day time-grid with drag-to-schedule from a pool of carryover tasks, inbox, and every open project task
+- **Week Planner**: seven-day view with drag-between-days scheduling
 - **Inbox** for standalone tasks + recurring routines
 - **Project detail** with next action, kanban (Now / Next / Done), decision log, GitHub commits
-- **GitHub integration** — link repos, see recent commits, aggregated 12-week activity heatmap
-- **Learning** — long-horizon learning tracks with a milestone roadmap, daily habits by cadence, and per-day completions driving streaks + a heatmap
+- **GitHub integration**: link repos, see recent commits, aggregated 12-week activity heatmap
+- **Learning**: long-horizon learning tracks with a milestone roadmap, daily habits by cadence, and per-day completions driving streaks + a heatmap
+- **Habits**: standalone life habits with categories, cadence, a due-today checklist, streaks, and a calendar heatmap (separate from Learning)
 - **Command palette** (⌘K) for navigation and actions
 
 ## Stack
@@ -28,11 +29,11 @@ Keep track of what's active, what's on ice, what's shipped. Plan your day around
 
 ### 1. Supabase setup
 
-Create a Supabase project, then run the schema from `supabase/schema.sql` in the SQL Editor. It's idempotent — safe to re-run.
+Create a Supabase project, then run the schema from `supabase/schema.sql` in the SQL Editor. It's idempotent: safe to re-run.
 
 Enable at least one auth provider:
-- **Email/Password** — Authentication → Providers → Email. Turn off "Confirm email" for a personal dev setup.
-- **Google** (optional) — Authentication → Providers → Google. Needs a Google Cloud OAuth client ([guide](https://supabase.com/docs/guides/auth/social-login/auth-google)).
+- **Email/Password**: Authentication → Providers → Email. Turn off "Confirm email" for a personal dev setup.
+- **Google** (optional): Authentication → Providers → Google. Needs a Google Cloud OAuth client ([guide](https://supabase.com/docs/guides/auth/social-login/auth-google)).
 
 Also set your URL config:
 - Site URL: `http://localhost:5173` (or your production URL)
@@ -58,14 +59,15 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:5173 — sign up, then use the command palette (`⌘K`) to load demo data if you want a populated dashboard to poke around.
+Open http://localhost:5173, sign up, then use the command palette (`⌘K`) to load demo data if you want a populated dashboard to poke around.
 
 ## Schema migrations
 
-- `supabase/schema.sql` — full schema, idempotent
-- `supabase/migration_github.sql` — adds GitHub token column
-- `supabase/migration_task_description.sql` — adds description column to tasks
-- `supabase/migration_learning.sql` — adds the Learning module tables (tracks, milestones, daily habits, completions)
+- `supabase/schema.sql`: full schema, idempotent
+- `supabase/migration_github.sql`: adds GitHub token column
+- `supabase/migration_task_description.sql`: adds description column to tasks
+- `supabase/migration_learning.sql`: adds the Learning module tables (tracks, milestones, daily habits, completions)
+- `supabase/migration_habits.sql`: adds standalone life-habit tables (categories, habits, logs)
 
 ## GitHub integration
 
@@ -75,7 +77,7 @@ Open http://localhost:5173 — sign up, then use the command palette (`⌘K`) to
 4. Recent commits appear on the project detail page.
 5. The 12-week commit heatmap on the Today view aggregates commits across all linked repos.
 
-All GitHub data is fetched client-side — no server proxy. Your token is stored in your `profiles` row, locked by RLS.
+All GitHub data is fetched client-side, no server proxy. Your token is stored in your `profiles` row, locked by RLS.
 
 ## Roadmap
 

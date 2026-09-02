@@ -7,6 +7,7 @@ import {
   CalendarRange,
   Trophy,
   GraduationCap,
+  Repeat,
   Command,
   Sparkles,
   LogOut,
@@ -14,11 +15,14 @@ import {
   Plus,
   RefreshCw,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, isoDate } from "@/lib/utils";
 import { useStore } from "@/lib/store";
+import { useHabitStore } from "@/lib/habitStore";
+import { getHabitsDueOn, isLogged } from "@/lib/habitSelectors";
 import CommandPalette from "./CommandPalette";
 import SettingsDialog from "./dialogs/SettingsDialog";
 import QuickAddDialog from "./dialogs/QuickAddDialog";
+import HabitDialog from "./dialogs/HabitDialog";
 import BottomNav from "./BottomNav";
 import { useEffect, useRef, useState } from "react";
 
@@ -26,6 +30,7 @@ const navItems = [
   { to: "/", label: "Today", icon: LayoutDashboard, end: true },
   { to: "/projects", label: "Projects", icon: FolderKanban },
   { to: "/learning", label: "Learning", icon: GraduationCap },
+  { to: "/habits", label: "Habits", icon: Repeat },
   { to: "/inbox", label: "Inbox", icon: InboxIcon },
   { to: "/day", label: "Plan the day", icon: CalendarDays },
   { to: "/planner", label: "Week", icon: CalendarRange },
@@ -37,6 +42,7 @@ export default function Layout() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [habitOpen, setHabitOpen] = useState(false);
   const location = useLocation();
   const tasks = useStore((s) => s.tasks);
   const projects = useStore((s) => s.projects);
@@ -44,6 +50,14 @@ export default function Layout() {
   const displayName = useStore((s) => s.displayName);
   const signOut = useStore((s) => s.signOut);
   const loadAll = useStore((s) => s.loadAll);
+  const habitHabits = useHabitStore((s) => s.habits);
+  const habitLogs = useHabitStore((s) => s.logs);
+  const habitsLoaded = useHabitStore((s) => s.loaded);
+  const loadHabits = useHabitStore((s) => s.loadHabits);
+
+  useEffect(() => {
+    if (!habitsLoaded) void loadHabits();
+  }, [habitsLoaded, loadHabits]);
 
   // Pull-to-refresh (mobile): pull down at the top of the page to reload data.
   const mainRef = useRef<HTMLElement>(null);
@@ -82,6 +96,12 @@ export default function Layout() {
   const inboxCount = tasks.filter(
     (t) => !t.projectId && t.status !== "done"
   ).length;
+  const todayIso = isoDate(new Date());
+  const habitsDue = getHabitsDueOn(todayIso, habitHabits);
+  const habitsOpenCount = habitsDue.filter(
+    (h) => !isLogged(h.id, todayIso, habitLogs)
+  ).length;
+  const onHabits = location.pathname.startsWith("/habits");
   const userLabel = displayName ?? user?.email ?? "You";
 
   useEffect(() => {
@@ -188,6 +208,11 @@ export default function Layout() {
                   {inboxCount}
                 </span>
               )}
+              {n.label === "Habits" && habitsOpenCount > 0 && (
+                <span className="text-[10px] font-mono text-ink-950 bg-accent-amber px-1.5 py-0.5 rounded font-semibold">
+                  {habitsOpenCount}
+                </span>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -265,8 +290,10 @@ export default function Layout() {
 
       {/* Mobile quick-capture */}
       <button
-        onClick={() => setQuickAddOpen(true)}
-        aria-label="Quick add task"
+        onClick={() =>
+          onHabits ? setHabitOpen(true) : setQuickAddOpen(true)
+        }
+        aria-label={onHabits ? "New habit" : "Quick add task"}
         className="md:hidden fixed right-4 bottom-20 z-30 w-14 h-14 rounded-full bg-accent-amber text-ink-950 shadow-lg shadow-black/40 flex items-center justify-center active:scale-95 transition"
       >
         <Plus className="w-6 h-6" />
@@ -278,6 +305,7 @@ export default function Layout() {
         open={paletteOpen}
         onClose={() => setPaletteOpen(false)}
         onOpenSettings={() => setSettingsOpen(true)}
+        onNewHabit={() => setHabitOpen(true)}
       />
       <SettingsDialog
         open={settingsOpen}
@@ -287,6 +315,7 @@ export default function Layout() {
         open={quickAddOpen}
         onClose={() => setQuickAddOpen(false)}
       />
+      <HabitDialog open={habitOpen} onClose={() => setHabitOpen(false)} />
     </div>
   );
 }

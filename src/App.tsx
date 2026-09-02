@@ -10,6 +10,8 @@ import DayPlanner from "./pages/DayPlanner";
 import Shipped from "./pages/Shipped";
 import Learning from "./pages/Learning";
 import LearningTrack from "./pages/LearningTrack";
+import Habits from "./pages/Habits";
+import HabitDetail from "./pages/HabitDetail";
 
 export default function App() {
   return (
@@ -25,6 +27,8 @@ export default function App() {
           <Route path="/shipped" element={<Shipped />} />
           <Route path="/learning" element={<Learning />} />
           <Route path="/learning/:trackId" element={<LearningTrack />} />
+          <Route path="/habits" element={<Habits />} />
+          <Route path="/habits/:habitId" element={<HabitDetail />} />
         </Route>
       </Routes>
     </AuthGate>

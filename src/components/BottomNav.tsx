@@ -4,7 +4,7 @@ import {
   FolderKanban,
   Inbox as InboxIcon,
   CalendarDays,
-  GraduationCap,
+  Repeat,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/lib/store";
@@ -14,9 +14,9 @@ import { useStore } from "@/lib/store";
 const tabs = [
   { to: "/", label: "Today", icon: LayoutDashboard, end: true },
   { to: "/projects", label: "Projects", icon: FolderKanban },
+  { to: "/habits", label: "Habits", icon: Repeat },
   { to: "/inbox", label: "Inbox", icon: InboxIcon },
   { to: "/day", label: "Plan", icon: CalendarDays },
-  { to: "/learning", label: "Learning", icon: GraduationCap },
 ];
 
 export default function BottomNav() {

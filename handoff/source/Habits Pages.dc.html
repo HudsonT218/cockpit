@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@0.446.0/dist/umd/lucide.js"></script>
+<style>
+  body { margin:0; background:#050506; color:#e4e4e7; font-family:"Inter",ui-sans-serif,system-ui,sans-serif; -webkit-font-smoothing:antialiased; }
+  a { color:#f59e0b; text-decoration:none; }
+  a:hover { color:#fbbf24; }
+  ::selection { background:rgba(245,158,11,0.35); color:#fff; }
+  * { box-sizing:border-box; }
+  input, textarea, select { font-family:inherit; }
+</style>
+</helmet>
+
+<template id="__bundler_thumbnail">
+  <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+    <rect width="200" height="200" fill="#0a0a0b"></rect>
+    <g transform="translate(60,60)">
+      <rect x="0" y="0" width="18" height="18" rx="4" fill="#f59e0b"></rect>
+      <rect x="31" y="0" width="18" height="18" rx="4" fill="#18181b"></rect>
+      <rect x="62" y="0" width="18" height="18" rx="4" fill="#f59e0b"></rect>
+      <rect x="0" y="31" width="18" height="18" rx="4" fill="#10b981"></rect>
+      <rect x="31" y="31" width="18" height="18" rx="4" fill="#f59e0b"></rect>
+      <rect x="62" y="31" width="18" height="18" rx="4" fill="#18181b"></rect>
+      <rect x="0" y="62" width="18" height="18" rx="4" fill="#18181b"></rect>
+      <rect x="31" y="62" width="18" height="18" rx="4" fill="#8b5cf6"></rect>
+      <rect x="62" y="62" width="18" height="18" rx="4" fill="#f59e0b"></rect>
+    </g>
+  </svg>
+</template>
+<section style="padding:48px; display:flex; flex-direction:column; gap:48px">
+
+  <div style="display:flex; flex-direction:column; gap:6px">
+    <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.2em; color:#52525b">Cockpit · habits</div>
+    <h1 style="margin:0; font-size:30px; font-weight:600; letter-spacing:-0.02em; color:#fafafa">Concept 1a — full page set</h1>
+    <p style="margin:0; max-width:660px; font-size:14px; line-height:1.6; color:#71717a; text-wrap:pretty">Three screens: <a href="#2a">2a</a> the Habits page, <a href="#2b">2b</a> Build a habit (a Modal.tsx dialog on desktop, a full sheet on mobile), <a href="#2c">2c</a> the habit detail page with the calendar heatmap. Chips filter, circles toggle, the form's category and cadence controls work, and the month grid is clickable.</p>
+  </div>
+
+  <div id="2a" style="display:flex; flex-direction:column; gap:14px">
+    <div style="display:flex; align-items:center; gap:10px">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500; padding:3px 8px; border-radius:5px; background:#f59e0b; color:#0a0a0b">2a</span>
+      <span style="font-size:14px; font-weight:600; color:#e4e4e7">Habits</span>
+      <span style="font-size:13px; color:#52525b">/habits</span>
+    </div>
+    <div style="display:flex; gap:24px; align-items:flex-start">
+      <div style="flex:none; width:1280px; height:812px; overflow:hidden; display:flex; border:1px solid #27272a; border-radius:14px; background:#0a0a0b">
+        <aside style="width:240px; flex-shrink:0; border-right:1px solid rgba(24,24,27,0.8); display:flex; flex-direction:column; background:#0a0a0b">
+          <div style="padding:24px 20px 20px; border-bottom:1px solid rgba(24,24,27,0.6); display:flex; align-items:center; gap:8px">
+            <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#f59e0b,#f43f5e); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(245,158,11,0.2)"><i data-lucide="sparkles" style="width:16px;height:16px;color:#fff"></i></div>
+            <div>
+              <div style="font-size:14px; font-weight:600; letter-spacing:-0.01em; color:#e4e4e7">Cockpit</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:#52525b">v0.1 · personal</div>
+            </div>
+          </div>
+          <nav style="flex:1; padding:16px 12px; display:flex; flex-direction:column; gap:2px">
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="layout-dashboard" style="width:16px;height:16px"></i><span style="flex:1">Today</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="folder-kanban" style="width:16px;height:16px"></i><span style="flex:1">Projects</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b; background:#18181b; padding:2px 6px; border-radius:4px">4</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="graduation-cap" style="width:16px;height:16px"></i><span style="flex:1">Learning</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; background:rgba(24,24,27,0.8); color:#fafafa"><i data-lucide="repeat" style="width:16px;height:16px"></i><span style="flex:1">Habits</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#0a0a0b; background:#f59e0b; padding:2px 6px; border-radius:4px; font-weight:600">{{ openCount }}</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="inbox" style="width:16px;height:16px"></i><span style="flex:1">Inbox</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="calendar-days" style="width:16px;height:16px"></i><span style="flex:1">Plan the day</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="calendar-range" style="width:16px;height:16px"></i><span style="flex:1">Week</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="trophy" style="width:16px;height:16px"></i><span style="flex:1">Shipped</span></div>
+          </nav>
+          <div style="margin:12px; display:flex; align-items:center; gap:8px; padding:8px 12px; font-size:12px; color:#71717a; border:1px solid #18181b; border-radius:8px"><i data-lucide="command" style="width:14px;height:14px"></i><span style="flex:1">Command palette</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b">⌘K</span></div>
+          <div style="margin:0 12px 16px; padding:10px; border:1px solid #18181b; border-radius:8px; display:flex; align-items:center; gap:8px">
+            <div style="width:24px; height:24px; border-radius:999px; background:linear-gradient(135deg,#f59e0b,#f43f5e); color:#0a0a0b; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600">H</div>
+            <div style="flex:1; min-width:0"><div style="font-size:12px; color:#d4d4d8">Hudson</div><div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#3f3f46">settings</div></div>
+            <i data-lucide="log-out" style="width:14px;height:14px;color:#52525b"></i>
+          </div>
+        </aside>
+
+        <main style="flex:1; overflow:hidden; padding:32px">
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px">
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.2em; color:#52525b; margin-bottom:4px">Daily practice</div>
+              <h1 style="margin:0; font-size:30px; font-weight:600; letter-spacing:-0.02em; color:#e4e4e7">Habits<span style="color:#52525b; font-weight:400; margin-left:12px; font-size:20px">{{ filteredCount }}</span></h1>
+            </div>
+            <button style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; background:#fafafa; color:#0a0a0b; border:0; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer" style-hover="background:#ffffff"><i data-lucide="plus" style="width:16px;height:16px"></i> New habit</button>
+          </div>
+
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:24px">
+            <input placeholder="Search habits…" style="background:#111113; border:1px solid #18181b; border-radius:8px; padding:6px 12px; font-size:14px; color:#d4d4d8; outline:none; width:240px">
+            <div style="height:24px; width:1px; background:#18181b; margin:0 4px"></div>
+            <sc-for list="{{ catChips }}" as="chip" hint-placeholder-count="4">
+              <button onClick="{{ chip.pick }}" style="flex-shrink:0; white-space:nowrap; padding:4px 10px; font-size:12px; border-radius:4px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.05em; border:0; cursor:pointer; background: {{ chip.bg }}; color: {{ chip.fg }}">{{ chip.label }}</button>
+            </sc-for>
+            <div style="height:24px; width:1px; background:#18181b; margin:0 4px"></div>
+            <sc-for list="{{ cadChips }}" as="chip" hint-placeholder-count="5">
+              <button onClick="{{ chip.pick }}" style="flex-shrink:0; white-space:nowrap; padding:4px 10px; font-size:12px; border-radius:4px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.05em; border:0; cursor:pointer; background: {{ chip.bg }}; color: {{ chip.fg }}">{{ chip.label }}</button>
+            </sc-for>
+            <button style="width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border:0; background:transparent; color:#52525b; border-radius:4px; cursor:pointer" style-hover="background:rgba(24,24,27,0.6); color:#d4d4d8"><i data-lucide="sliders-horizontal" style="width:14px;height:14px"></i></button>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(12,1fr); gap:20px">
+            <section style="grid-column:span 8; position:relative; overflow:hidden; border:1px solid #18181b; border-radius:16px; background:rgba(17,17,19,0.4)">
+              <div style="position:absolute; inset:0; background:radial-gradient(circle at 20% 20%, rgba(245,158,11,0.12) 0%, transparent 55%); opacity:0.8"></div>
+              <div style="position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#f59e0b,transparent)"></div>
+              <div style="position:relative; padding:24px 20px">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; padding:0 8px">
+                  <div style="display:flex; align-items:center; gap:8px"><i data-lucide="sun" style="width:14px;height:14px;color:#f59e0b"></i><span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b">Due today</span></div>
+                  <div style="display:flex; align-items:center; gap:16px; font-family:'JetBrains Mono',monospace; font-size:11px; color:#52525b">
+                    <span style="white-space:nowrap">{{ doneToday }} / {{ dueCount }} done</span>
+                    <span style="display:inline-flex; align-items:center; gap:4px; white-space:nowrap; color:#f59e0b"><i data-lucide="flame" style="width:12px;height:12px"></i>{{ bestStreak }} day streak</span>
+                  </div>
+                </div>
+                <sc-for list="{{ groups }}" as="group" hint-placeholder-count="3">
+                  <div style="margin-bottom:18px">
+                    <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px; padding:0 8px">
+                      <span style="width:6px; height:6px; border-radius:999px; background: {{ group.color }}"></span>
+                      <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b">{{ group.label }}</div>
+                      <div style="height:1px; flex:1; background:#18181b"></div>
+                      <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#3f3f46">{{ group.count }}</div>
+                    </div>
+                    <sc-for list="{{ group.items }}" as="item" hint-placeholder-count="3">
+                      <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px" style-hover="background:rgba(17,17,19,0.5)">
+                        <button onClick="{{ item.toggle }}" style="width:20px; height:20px; border-radius:999px; border:1px solid; display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; padding:0; font-size:11px; font-weight:700; line-height:1; background: {{ item.checkBg }}; border-color: {{ item.checkBorder }}; color: {{ item.checkFg }}">{{ item.mark }}</button>
+                        <span style="flex:1; font-size:14px; color: {{ item.nameColor }}">{{ item.name }}</span>
+                        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#3f3f46; width:80px; text-align:right">{{ item.cadence }}</span>
+                        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; width:56px; text-align:right; color: {{ item.streakColor }}">{{ item.streakLabel }}</span>
+                        <i data-lucide="chevron-right" style="width:14px;height:14px;color:#3f3f46"></i>
+                      </div>
+                    </sc-for>
+                  </div>
+                </sc-for>
+              </div>
+            </section>
+
+            <div style="grid-column:span 4; display:flex; flex-direction:column; gap:20px">
+              <section style="border:1px solid #18181b; border-radius:16px; background:rgba(17,17,19,0.4); padding:18px">
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px">
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b">This week</div>
+                  <div style="display:flex; gap:4px; font-family:'JetBrains Mono',monospace; font-size:9px; color:#3f3f46">
+                    <span style="width:14px; text-align:center">M</span><span style="width:14px; text-align:center">T</span><span style="width:14px; text-align:center">W</span><span style="width:14px; text-align:center">T</span><span style="width:14px; text-align:center">F</span><span style="width:14px; text-align:center">S</span><span style="width:14px; text-align:center">S</span>
+                  </div>
+                </div>
+                <sc-for list="{{ weekRows }}" as="row" hint-placeholder-count="6">
+                  <div style="display:flex; align-items:center; gap:10px; padding:4px 0">
+                    <span style="flex:1; font-size:12px; color:#a1a1aa; overflow:hidden; text-overflow:ellipsis; white-space:nowrap">{{ row.name }}</span>
+                    <div style="display:flex; gap:4px">
+                      <sc-for list="{{ row.cells }}" as="cell" hint-placeholder-count="7">
+                        <span style="width:14px; height:14px; border-radius:3px; background: {{ cell.bg }}"></span>
+                      </sc-for>
+                    </div>
+                  </div>
+                </sc-for>
+              </section>
+              <section style="border:1px solid #18181b; border-radius:16px; background:rgba(17,17,19,0.4); padding:18px">
+                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b; margin-bottom:14px">Consistency · 30 days</div>
+                <sc-for list="{{ consistency }}" as="row" hint-placeholder-count="3">
+                  <div style="margin-bottom:12px">
+                    <div style="display:flex; align-items:center; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:11px; color:#52525b; margin-bottom:6px">
+                      <span>{{ row.label }}</span><span style="color: {{ row.color }}">{{ row.pct }}%</span>
+                    </div>
+                    <div style="height:6px; background:#18181b; border-radius:999px; overflow:hidden"><div style="height:100%; border-radius:999px; width: {{ row.width }}; background: {{ row.color }}"></div></div>
+                  </div>
+                </sc-for>
+              </section>
+            </div>
+          </div>
+        </main>
+      </div>
+
+      <div style="flex:none; width:390px; height:844px; overflow:hidden; position:relative; border:1px solid #27272a; border-radius:32px; background:#0a0a0b">
+        <div style="position:absolute; top:0; left:0; right:0; height:48px; z-index:3; display:flex; align-items:center; justify-content:space-between; padding:0 16px; background:rgba(10,10,11,0.95); backdrop-filter:blur(8px); border-bottom:1px solid rgba(24,24,27,0.8)">
+          <div style="display:flex; align-items:center; gap:8px"><div style="width:24px; height:24px; border-radius:6px; background:linear-gradient(135deg,#f59e0b,#f43f5e); display:flex; align-items:center; justify-content:center"><i data-lucide="sparkles" style="width:14px;height:14px;color:#fff"></i></div><span style="font-size:14px; font-weight:600; letter-spacing:-0.01em">Cockpit</span></div>
+          <div style="width:28px; height:28px; border-radius:999px; background:linear-gradient(135deg,#f59e0b,#f43f5e); color:#0a0a0b; font-size:11px; font-weight:600; display:flex; align-items:center; justify-content:center">H</div>
+        </div>
+        <div style="position:absolute; inset:48px 0 56px 0; overflow:hidden; padding:16px 16px 24px">
+          <div style="font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.2em; color:#52525b; margin-bottom:4px">Daily practice</div>
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:16px">
+            <h1 style="margin:0; font-size:24px; font-weight:600; letter-spacing:-0.02em; color:#e4e4e7">Habits<span style="color:#52525b; font-weight:400; margin-left:10px; font-size:16px">{{ filteredCount }}</span></h1>
+            <div style="display:flex; align-items:center; gap:5px; font-family:'JetBrains Mono',monospace; font-size:12px; color:#f59e0b"><i data-lucide="flame" style="width:14px;height:14px"></i>{{ bestStreak }}</div>
+          </div>
+          <div style="position:relative; margin:0 -16px 8px">
+            <div style="display:flex; gap:6px; overflow:hidden; padding:0 16px">
+              <sc-for list="{{ catChips }}" as="chip" hint-placeholder-count="4">
+                <button onClick="{{ chip.pick }}" style="flex-shrink:0; white-space:nowrap; padding:6px 12px; font-size:12px; border-radius:999px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.05em; border:0; cursor:pointer; min-height:32px; background: {{ chip.bg }}; color: {{ chip.fg }}">{{ chip.label }}</button>
+              </sc-for>
+            </div>
+            <div style="position:absolute; top:0; right:0; bottom:0; width:36px; pointer-events:none; background:linear-gradient(90deg, rgba(10,10,11,0), #0a0a0b)"></div>
+          </div>
+          <div style="position:relative; margin:0 -16px 16px">
+            <div style="display:flex; gap:6px; overflow:hidden; padding:0 16px">
+              <sc-for list="{{ cadChipsMobile }}" as="chip" hint-placeholder-count="5">
+                <button onClick="{{ chip.pick }}" style="flex-shrink:0; white-space:nowrap; padding:6px 12px; font-size:12px; border-radius:999px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.05em; border:0; cursor:pointer; min-height:32px; background: {{ chip.bg }}; color: {{ chip.fg }}">{{ chip.label }}</button>
+              </sc-for>
+            </div>
+            <div style="position:absolute; top:0; right:0; bottom:0; width:36px; pointer-events:none; background:linear-gradient(90deg, rgba(10,10,11,0), #0a0a0b)"></div>
+          </div>
+          <div style="position:relative; overflow:hidden; border:1px solid #18181b; border-radius:16px; background:rgba(17,17,19,0.4); padding:14px 8px 8px">
+            <div style="position:absolute; inset:0; background:radial-gradient(circle at 20% 20%, rgba(245,158,11,0.12) 0%, transparent 55%)"></div>
+            <div style="position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#f59e0b,transparent)"></div>
+            <div style="position:relative">
+              <div style="display:flex; align-items:center; justify-content:space-between; padding:0 8px; margin-bottom:10px">
+                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b">Due today</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:11px; white-space:nowrap; color:#52525b">{{ doneToday }} / {{ dueCount }}</span>
+              </div>
+              <sc-for list="{{ groups }}" as="group" hint-placeholder-count="3">
+                <div style="margin-bottom:12px">
+                  <div style="display:flex; align-items:center; gap:10px; padding:0 8px; margin-bottom:2px">
+                    <span style="width:6px; height:6px; border-radius:999px; background: {{ group.color }}"></span>
+                    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b">{{ group.label }}</div>
+                    <div style="height:1px; flex:1; background:#18181b"></div>
+                  </div>
+                  <sc-for list="{{ group.items }}" as="item" hint-placeholder-count="3">
+                    <div style="display:flex; align-items:center; gap:12px; padding:11px 8px; border-radius:10px">
+                      <button onClick="{{ item.toggle }}" style="width:26px; height:26px; border-radius:999px; border:1px solid; display:flex; align-items:center; justify-content:center; flex-shrink:0; cursor:pointer; padding:0; font-size:13px; font-weight:700; line-height:1; background: {{ item.checkBg }}; border-color: {{ item.checkBorder }}; color: {{ item.checkFg }}">{{ item.mark }}</button>
+                      <span style="flex:1; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; color: {{ item.nameColor }}">{{ item.name }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; white-space:nowrap; color: {{ item.streakColor }}">{{ item.streakLabel }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <button style="position:absolute; right:16px; bottom:80px; z-index:4; width:56px; height:56px; border-radius:999px; border:0; background:#f59e0b; color:#0a0a0b; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(0,0,0,0.4); cursor:pointer"><i data-lucide="plus" style="width:24px;height:24px"></i></button>
+        <nav style="position:absolute; bottom:0; left:0; right:0; z-index:3; display:flex; align-items:stretch; border-top:1px solid rgba(24,24,27,0.8); background:rgba(10,10,11,0.95); backdrop-filter:blur(8px); padding-bottom:4px">
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#52525b"><i data-lucide="layout-dashboard" style="width:18px;height:18px"></i><span>Today</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#52525b"><i data-lucide="folder-kanban" style="width:18px;height:18px"></i><span>Projects</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#f59e0b"><i data-lucide="repeat" style="width:18px;height:18px"></i><span>Habits</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#52525b"><i data-lucide="inbox" style="width:18px;height:18px"></i><span>Inbox</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#52525b"><i data-lucide="calendar-days" style="width:18px;height:18px"></i><span>Plan</span></div>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <div id="2b" style="display:flex; flex-direction:column; gap:14px">
+    <div style="display:flex; align-items:center; gap:10px">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500; padding:3px 8px; border-radius:5px; background:#f59e0b; color:#0a0a0b">2b</span>
+      <span style="font-size:14px; font-weight:600; color:#e4e4e7">Build a habit</span>
+      <span style="font-size:13px; color:#52525b">Modal.tsx dialog · full sheet on mobile</span>
+    </div>
+    <div style="display:flex; gap:24px; align-items:flex-start">
+      <div style="flex:none; width:1280px; height:812px; overflow:hidden; position:relative; display:flex; border:1px solid #27272a; border-radius:14px; background:#0a0a0b">
+        <aside style="width:240px; flex-shrink:0; border-right:1px solid rgba(24,24,27,0.8); display:flex; flex-direction:column; background:#0a0a0b">
+          <div style="padding:24px 20px 20px; border-bottom:1px solid rgba(24,24,27,0.6); display:flex; align-items:center; gap:8px">
+            <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#f59e0b,#f43f5e); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(245,158,11,0.2)"><i data-lucide="sparkles" style="width:16px;height:16px;color:#fff"></i></div>
+            <div>
+              <div style="font-size:14px; font-weight:600; letter-spacing:-0.01em; color:#e4e4e7">Cockpit</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:#52525b">v0.1 · personal</div>
+            </div>
+          </div>
+          <nav style="flex:1; padding:16px 12px; display:flex; flex-direction:column; gap:2px">
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="layout-dashboard" style="width:16px;height:16px"></i><span style="flex:1">Today</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="folder-kanban" style="width:16px;height:16px"></i><span style="flex:1">Projects</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b; background:#18181b; padding:2px 6px; border-radius:4px">4</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="graduation-cap" style="width:16px;height:16px"></i><span style="flex:1">Learning</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; background:rgba(24,24,27,0.8); color:#fafafa"><i data-lucide="repeat" style="width:16px;height:16px"></i><span style="flex:1">Habits</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#0a0a0b; background:#f59e0b; padding:2px 6px; border-radius:4px; font-weight:600">{{ openCount }}</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="inbox" style="width:16px;height:16px"></i><span style="flex:1">Inbox</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="calendar-days" style="width:16px;height:16px"></i><span style="flex:1">Plan the day</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="calendar-range" style="width:16px;height:16px"></i><span style="flex:1">Week</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="trophy" style="width:16px;height:16px"></i><span style="flex:1">Shipped</span></div>
+          </nav>
+          <div style="margin:12px; display:flex; align-items:center; gap:8px; padding:8px 12px; font-size:12px; color:#71717a; border:1px solid #18181b; border-radius:8px"><i data-lucide="command" style="width:14px;height:14px"></i><span style="flex:1">Command palette</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b">⌘K</span></div>
+          <div style="margin:0 12px 16px; padding:10px; border:1px solid #18181b; border-radius:8px; display:flex; align-items:center; gap:8px">
+            <div style="width:24px; height:24px; border-radius:999px; background:linear-gradient(135deg,#f59e0b,#f43f5e); color:#0a0a0b; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600">H</div>
+            <div style="flex:1; min-width:0"><div style="font-size:12px; color:#d4d4d8">Hudson</div><div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#3f3f46">settings</div></div>
+            <i data-lucide="log-out" style="width:14px;height:14px;color:#52525b"></i>
+          </div>
+        </aside>
+
+        <main style="flex:1; overflow:hidden; padding:32px">
+          <div style="display:flex; align-items:flex-end; justify-content:space-between; margin-bottom:24px">
+            <div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.2em; color:#52525b; margin-bottom:4px">Daily practice</div>
+              <h1 style="margin:0; font-size:30px; font-weight:600; letter-spacing:-0.02em; color:#e4e4e7">Habits<span style="color:#52525b; font-weight:400; margin-left:12px; font-size:20px">{{ filteredCount }}</span></h1>
+            </div>
+            <button style="display:inline-flex; align-items:center; gap:8px; padding:8px 12px; background:#fafafa; color:#0a0a0b; border:0; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer"><i data-lucide="plus" style="width:16px;height:16px"></i> New habit</button>
+          </div>
+          <div style="display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin-bottom:24px">
+            <input placeholder="Search habits…" style="background:#111113; border:1px solid #18181b; border-radius:8px; padding:6px 12px; font-size:14px; color:#d4d4d8; outline:none; width:240px">
+            <div style="height:24px; width:1px; background:#18181b; margin:0 4px"></div>
+            <sc-for list="{{ catChips }}" as="chip" hint-placeholder-count="4">
+              <span style="flex-shrink:0; white-space:nowrap; padding:4px 10px; font-size:12px; border-radius:4px; font-family:'JetBrains Mono',monospace; text-transform:uppercase; letter-spacing:0.05em; background: {{ chip.bg }}; color: {{ chip.fg }}">{{ chip.label }}</span>
+            </sc-for>
+          </div>
+          <section style="position:relative; overflow:hidden; border:1px solid #18181b; border-radius:16px; background:rgba(17,17,19,0.4); max-width:760px">
+            <div style="position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,#f59e0b,transparent)"></div>
+            <div style="padding:24px 20px">
+              <sc-for list="{{ groups }}" as="group" hint-placeholder-count="3">
+                <div style="margin-bottom:18px">
+                  <div style="display:flex; align-items:center; gap:12px; margin-bottom:6px; padding:0 8px">
+                    <span style="width:6px; height:6px; border-radius:999px; background: {{ group.color }}"></span>
+                    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b">{{ group.label }}</div>
+                    <div style="height:1px; flex:1; background:#18181b"></div>
+                  </div>
+                  <sc-for list="{{ group.items }}" as="item" hint-placeholder-count="3">
+                    <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px">
+                      <span style="width:20px; height:20px; border-radius:999px; border:1px solid; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:11px; font-weight:700; line-height:1; background: {{ item.checkBg }}; border-color: {{ item.checkBorder }}; color: {{ item.checkFg }}">{{ item.mark }}</span>
+                      <span style="flex:1; font-size:14px; color: {{ item.nameColor }}">{{ item.name }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#3f3f46">{{ item.cadence }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+          </section>
+        </main>
+
+        <div style="position:absolute; inset:0; z-index:50; background:rgba(0,0,0,0.6); backdrop-filter:blur(4px); display:flex; align-items:center; justify-content:center; padding:16px">
+          <div style="width:520px; max-height:740px; overflow:hidden; background:#111113; border:1px solid #27272a; border-radius:12px; box-shadow:0 25px 50px -12px rgba(0,0,0,0.4)">
+            <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 20px; border-bottom:1px solid #18181b">
+              <div style="font-size:14px; font-weight:500; color:#e4e4e7">New habit</div>
+              <i data-lucide="x" style="width:16px;height:16px;color:#52525b"></i>
+            </div>
+            <div style="padding:20px">
+              <div style="display:flex; align-items:flex-start; gap:12px; margin-bottom:16px">
+                <div style="width:32px; height:32px; border-radius:8px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2); display:flex; align-items:center; justify-content:center; flex-shrink:0"><i data-lucide="repeat" style="width:16px;height:16px;color:#f59e0b"></i></div>
+                <p style="margin:0; font-size:14px; line-height:1.6; color:#71717a">A habit is a repeating check-in. Pick a category and a cadence, and it shows up on the days it applies.</p>
+              </div>
+
+              <label style="display:block; margin-bottom:12px">
+                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:4px">Name</div>
+                <input value="{{ form.name }}" onChange="{{ form.setName }}" placeholder="Move 30 minutes, read 20 pages…" style="width:100%; background:#0a0a0b; border:1px solid #18181b; border-radius:8px; padding:8px 12px; font-size:14px; color:#e4e4e7; outline:none">
+              </label>
+
+              <label style="display:block; margin-bottom:12px">
+                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:4px">Category</div>
+                <div style="display:flex; flex-wrap:wrap; gap:6px">
+                  <sc-for list="{{ form.catOptions }}" as="opt" hint-placeholder-count="3">
+                    <button onClick="{{ opt.pick }}" style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:8px; font-size:13px; cursor:pointer; border:1px solid; background: {{ opt.bg }}; border-color: {{ opt.border }}; color: {{ opt.fg }}">
+                      <span style="width:8px; height:8px; border-radius:999px; background: {{ opt.dot }}"></span>{{ opt.label }}
+                    </button>
+                  </sc-for>
+                  <button style="display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:8px; font-size:13px; cursor:pointer; border:1px dashed #27272a; background:transparent; color:#52525b"><i data-lucide="plus" style="width:12px;height:12px"></i>New category</button>
+                </div>
+              </label>
+
+              <label style="display:block; margin-bottom:12px">
+                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:4px">Cadence</div>
+                <div style="display:flex; gap:6px; margin-bottom:8px">
+                  <sc-for list="{{ form.cadenceOptions }}" as="opt" hint-placeholder-count="4">
+                    <button onClick="{{ opt.pick }}" style="flex:1; padding:8px 4px; border-radius:8px; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; cursor:pointer; border:1px solid; background: {{ opt.bg }}; border-color: {{ opt.border }}; color: {{ opt.fg }}">{{ opt.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="display:flex; gap:6px">
+                  <sc-for list="{{ form.dayButtons }}" as="day" hint-placeholder-count="7">
+                    <button onClick="{{ day.toggle }}" style="flex:1; padding:8px 0; border-radius:8px; font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase; cursor:pointer; border:1px solid; background: {{ day.bg }}; border-color: {{ day.border }}; color: {{ day.fg }}">{{ day.label }}</button>
+                  </sc-for>
+                </div>
+                <div style="display:flex; gap:4px; margin-top:6px; font-family:'JetBrains Mono',monospace; font-size:10px">
+                  <sc-for list="{{ form.presets }}" as="p" hint-placeholder-count="4">
+                    <button onClick="{{ p.pick }}" style="padding:4px 8px; border-radius:4px; border:0; background:transparent; color:#52525b; cursor:pointer" style-hover="background:rgba(24,24,27,0.6); color:#e4e4e7">{{ p.label }}</button>
+                  </sc-for>
+                </div>
+              </label>
+
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:12px">
+                <label style="display:block">
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:4px">Reminder</div>
+                  <input value="07:00" style="width:100%; background:#0a0a0b; border:1px solid #18181b; border-radius:8px; padding:8px 12px; font-size:14px; color:#e4e4e7; outline:none">
+                </label>
+                <label style="display:block">
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:4px">Start date</div>
+                  <input value="2026-08-31" style="width:100%; background:#0a0a0b; border:1px solid #18181b; border-radius:8px; padding:8px 12px; font-size:14px; color:#e4e4e7; outline:none; color-scheme:dark">
+                </label>
+              </div>
+
+              <label style="display:block">
+                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:4px">Why this habit (optional)</div>
+                <textarea rows="2" placeholder="What does keeping this get you?" style="width:100%; resize:none; background:#0a0a0b; border:1px solid #18181b; border-radius:8px; padding:8px 12px; font-size:14px; color:#e4e4e7; outline:none"></textarea>
+              </label>
+
+              <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px; margin-top:20px; padding-top:16px; border-top:1px solid #18181b">
+                <button style="padding:6px 12px; font-size:14px; color:#a1a1aa; background:transparent; border:0; border-radius:8px; cursor:pointer" style-hover="background:#18181b">Cancel</button>
+                <button style="padding:6px 12px; font-size:14px; font-weight:500; background:#fafafa; color:#0a0a0b; border:0; border-radius:8px; cursor:pointer; opacity: {{ form.saveOpacity }}">Create habit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="flex:none; width:390px; height:844px; overflow:hidden; position:relative; border:1px solid #27272a; border-radius:32px; background:#0a0a0b">
+        <div style="position:absolute; top:0; left:0; right:0; height:48px; z-index:3; display:flex; align-items:center; justify-content:space-between; padding:0 16px; background:rgba(10,10,11,0.95); border-bottom:1px solid rgba(24,24,27,0.8)">
+          <button style="display:flex; align-items:center; gap:6px; background:transparent; border:0; font-family:'JetBrains Mono',monospace; font-size:12px; color:#71717a; cursor:pointer"><i data-lucide="x" style="width:16px;height:16px"></i>Cancel</button>
+          <span style="font-size:14px; font-weight:500; color:#e4e4e7">New habit</span>
+          <button style="background:transparent; border:0; font-size:14px; font-weight:500; cursor:pointer; color: {{ form.mobileSaveColor }}">Save</button>
+        </div>
+        <div style="position:absolute; inset:48px 0 0 0; overflow:hidden; padding:16px">
+          <div style="display:flex; align-items:flex-start; gap:12px; margin-bottom:16px">
+            <div style="width:32px; height:32px; border-radius:8px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.2); display:flex; align-items:center; justify-content:center; flex-shrink:0"><i data-lucide="repeat" style="width:16px;height:16px;color:#f59e0b"></i></div>
+            <p style="margin:0; font-size:13px; line-height:1.5; color:#71717a">A habit is a repeating check-in. Pick a category and a cadence.</p>
+          </div>
+          <label style="display:block; margin-bottom:14px">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:4px">Name</div>
+            <input value="{{ form.name }}" onChange="{{ form.setName }}" placeholder="Move 30 minutes…" style="width:100%; background:#0a0a0b; border:1px solid #18181b; border-radius:10px; padding:12px; font-size:16px; color:#e4e4e7; outline:none">
+          </label>
+          <div style="margin-bottom:14px">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:6px">Category</div>
+            <div style="display:flex; flex-wrap:wrap; gap:8px">
+              <sc-for list="{{ form.catOptions }}" as="opt" hint-placeholder-count="3">
+                <button onClick="{{ opt.pick }}" style="display:inline-flex; align-items:center; gap:8px; padding:11px 14px; min-height:44px; border-radius:10px; font-size:14px; cursor:pointer; border:1px solid; background: {{ opt.bg }}; border-color: {{ opt.border }}; color: {{ opt.fg }}">
+                  <span style="width:8px; height:8px; border-radius:999px; background: {{ opt.dot }}"></span>{{ opt.label }}
+                </button>
+              </sc-for>
+              <button style="display:inline-flex; align-items:center; gap:6px; padding:11px 14px; min-height:44px; border-radius:10px; font-size:14px; cursor:pointer; border:1px dashed #27272a; background:transparent; color:#52525b"><i data-lucide="plus" style="width:14px;height:14px"></i>New</button>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:6px">Cadence</div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px">
+              <sc-for list="{{ form.cadenceOptions }}" as="opt" hint-placeholder-count="4">
+                <button onClick="{{ opt.pick }}" style="padding:12px 4px; min-height:44px; border-radius:10px; font-family:'JetBrains Mono',monospace; font-size:12px; text-transform:uppercase; letter-spacing:0.05em; cursor:pointer; border:1px solid; background: {{ opt.bg }}; border-color: {{ opt.border }}; color: {{ opt.fg }}">{{ opt.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="margin-bottom:14px">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:6px">Repeats on</div>
+            <div style="display:flex; gap:6px">
+              <sc-for list="{{ form.dayButtons }}" as="day" hint-placeholder-count="7">
+                <button onClick="{{ day.toggle }}" style="flex:1; padding:12px 0; min-height:44px; border-radius:10px; font-family:'JetBrains Mono',monospace; font-size:13px; text-transform:uppercase; cursor:pointer; border:1px solid; background: {{ day.bg }}; border-color: {{ day.border }}; color: {{ day.fg }}">{{ day.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
+            <label style="display:block">
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:4px">Reminder</div>
+              <input value="07:00" style="width:100%; background:#0a0a0b; border:1px solid #18181b; border-radius:10px; padding:12px; font-size:16px; color:#e4e4e7; outline:none">
+            </label>
+            <label style="display:block">
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:#52525b; margin-bottom:4px">Start</div>
+              <input value="2026-08-31" style="width:100%; background:#0a0a0b; border:1px solid #18181b; border-radius:10px; padding:12px; font-size:16px; color:#e4e4e7; outline:none">
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="2c" style="display:flex; flex-direction:column; gap:14px">
+    <div style="display:flex; align-items:center; gap:10px">
+      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:500; padding:3px 8px; border-radius:5px; background:#f59e0b; color:#0a0a0b">2c</span>
+      <span style="font-size:14px; font-weight:600; color:#e4e4e7">Habit detail · calendar heatmap</span>
+      <span style="font-size:13px; color:#52525b">/habits/:habitId</span>
+    </div>
+    <div style="display:flex; gap:24px; align-items:flex-start">
+      <div style="flex:none; width:1280px; height:900px; overflow:hidden; display:flex; border:1px solid #27272a; border-radius:14px; background:#0a0a0b">
+        <aside style="width:240px; flex-shrink:0; border-right:1px solid rgba(24,24,27,0.8); display:flex; flex-direction:column; background:#0a0a0b">
+          <div style="padding:24px 20px 20px; border-bottom:1px solid rgba(24,24,27,0.6); display:flex; align-items:center; gap:8px">
+            <div style="width:32px; height:32px; border-radius:8px; background:linear-gradient(135deg,#f59e0b,#f43f5e); display:flex; align-items:center; justify-content:center; box-shadow:0 10px 15px -3px rgba(245,158,11,0.2)"><i data-lucide="sparkles" style="width:16px;height:16px;color:#fff"></i></div>
+            <div>
+              <div style="font-size:14px; font-weight:600; letter-spacing:-0.01em; color:#e4e4e7">Cockpit</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.1em; color:#52525b">v0.1 · personal</div>
+            </div>
+          </div>
+          <nav style="flex:1; padding:16px 12px; display:flex; flex-direction:column; gap:2px">
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="layout-dashboard" style="width:16px;height:16px"></i><span style="flex:1">Today</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="folder-kanban" style="width:16px;height:16px"></i><span style="flex:1">Projects</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b; background:#18181b; padding:2px 6px; border-radius:4px">4</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="graduation-cap" style="width:16px;height:16px"></i><span style="flex:1">Learning</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; background:rgba(24,24,27,0.8); color:#fafafa"><i data-lucide="repeat" style="width:16px;height:16px"></i><span style="flex:1">Habits</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#0a0a0b; background:#f59e0b; padding:2px 6px; border-radius:4px; font-weight:600">{{ openCount }}</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="inbox" style="width:16px;height:16px"></i><span style="flex:1">Inbox</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="calendar-days" style="width:16px;height:16px"></i><span style="flex:1">Plan the day</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="calendar-range" style="width:16px;height:16px"></i><span style="flex:1">Week</span></div>
+            <div style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-radius:8px; font-size:14px; color:#71717a"><i data-lucide="trophy" style="width:16px;height:16px"></i><span style="flex:1">Shipped</span></div>
+          </nav>
+          <div style="margin:12px; display:flex; align-items:center; gap:8px; padding:8px 12px; font-size:12px; color:#71717a; border:1px solid #18181b; border-radius:8px"><i data-lucide="command" style="width:14px;height:14px"></i><span style="flex:1">Command palette</span><span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#52525b">⌘K</span></div>
+          <div style="margin:0 12px 16px; padding:10px; border:1px solid #18181b; border-radius:8px; display:flex; align-items:center; gap:8px">
+            <div style="width:24px; height:24px; border-radius:999px; background:linear-gradient(135deg,#f59e0b,#f43f5e); color:#0a0a0b; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:600">H</div>
+            <div style="flex:1; min-width:0"><div style="font-size:12px; color:#d4d4d8">Hudson</div><div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:#3f3f46">settings</div></div>
+            <i data-lucide="log-out" style="width:14px;height:14px;color:#52525b"></i>
+          </div>
+        </aside>
+
+        <main style="flex:1; overflow:hidden; padding:32px">
+          <div style="max-width:960px; display:flex; flex-direction:column; gap:32px">
+            <div>
+              <div style="display:inline-flex; align-items:center; gap:6px; font-family:'JetBrains Mono',monospace; font-size:11px; color:#52525b"><i data-lucide="arrow-left" style="width:14px;height:14px"></i>Habits</div>
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-top:12px">
+                <div style="min-width:0">
+                  <div style="display:flex; align-items:center; gap:10px">
+                    <span style="width:10px; height:10px; border-radius:999px; flex-shrink:0; background: {{ detail.color }}"></span>
+                    <h1 style="margin:0; font-size:30px; font-weight:600; letter-spacing:-0.02em; color:#fafafa">{{ detail.name }}</h1>
+                  </div>
+                  <div style="display:flex; align-items:center; gap:8px; margin-top:10px">
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; padding:3px 10px; border-radius:999px; border:1px solid; background: {{ detail.softBg }}; border-color: {{ detail.softBorder }}; color: {{ detail.color }}">{{ detail.catLabel }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; padding:3px 10px; border-radius:999px; border:1px solid #27272a; color:#71717a">{{ detail.cadence }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#3f3f46">Started March 4, 2026 · Day 180</span>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; flex-shrink:0">
+                  <button onClick="{{ detail.toggleToday }}" style="display:inline-flex; align-items:center; gap:8px; padding:8px 14px; border-radius:8px; font-size:14px; font-weight:500; cursor:pointer; border:1px solid; background: {{ detail.todayBtnBg }}; border-color: {{ detail.todayBtnBorder }}; color: {{ detail.todayBtnFg }}">{{ detail.todayBtnLabel }}</button>
+                  <button style="padding:8px; border-radius:8px; border:0; background:transparent; color:#71717a; cursor:pointer" style-hover="background:#18181b; color:#e4e4e7"><i data-lucide="more-vertical" style="width:16px;height:16px"></i></button>
+                </div>
+              </div>
+            </div>
+
+            <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px">
+              <sc-for list="{{ detail.stats }}" as="stat" hint-placeholder-count="4">
+                <div style="border:1px solid #18181b; border-radius:12px; background:rgba(17,17,19,0.4); padding:16px">
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.2em; color:#52525b; margin-bottom:8px">{{ stat.label }}</div>
+                  <div style="display:flex; align-items:baseline; gap:6px">
+                    <span style="font-size:28px; font-weight:600; color: {{ stat.color }}">{{ stat.value }}</span>
+                    <span style="font-size:13px; color:#52525b">{{ stat.unit }}</span>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+
+            <section>
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px">
+                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b">Calendar</div>
+                <div style="display:flex; align-items:center; gap:8px">
+                  <button onClick="{{ detail.prevMonth }}" style="width:28px; height:28px; display:flex; align-items:center; justify-content:center; border:1px solid #18181b; border-radius:6px; background:transparent; color:#71717a; cursor:pointer" style-hover="background:#18181b; color:#e4e4e7"><i data-lucide="chevron-left" style="width:14px;height:14px"></i></button>
+                  <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:#d4d4d8; width:130px; text-align:center">{{ detail.monthLabel }}</span>
+                  <button onClick="{{ detail.nextMonth }}" style="width:28px; height:28px; display:flex; align-items:center; justify-content:center; border:1px solid #18181b; border-radius:6px; background:transparent; color:#71717a; cursor:pointer" style-hover="background:#18181b; color:#e4e4e7"><i data-lucide="chevron-right" style="width:14px;height:14px"></i></button>
+                </div>
+              </div>
+              <div style="display:flex; gap:24px; align-items:flex-start">
+                <div style="border:1px solid #18181b; border-radius:16px; background:rgba(17,17,19,0.4); padding:20px">
+                  <div style="display:grid; grid-template-columns:repeat(7,44px); gap:6px; margin-bottom:8px">
+                    <sc-for list="{{ detail.dayNames }}" as="d" hint-placeholder-count="7">
+                      <div style="text-align:center; font-family:'JetBrains Mono',monospace; font-size:10px; color:#3f3f46">{{ d.label }}</div>
+                    </sc-for>
+                  </div>
+                  <div style="display:grid; grid-template-columns:repeat(7,44px); gap:6px">
+                    <sc-for list="{{ detail.monthCells }}" as="cell" hint-placeholder-count="35">
+                      <button onClick="{{ cell.toggle }}" style="width:44px; height:44px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; border:1px solid; background: {{ cell.bg }}; border-color: {{ cell.border }}; color: {{ cell.fg }}">{{ cell.label }}</button>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="flex:1; display:flex; flex-direction:column; gap:20px">
+                  <div style="border:1px solid #18181b; border-radius:16px; background:rgba(17,17,19,0.4); padding:20px">
+                    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b; margin-bottom:14px">Last 12 weeks</div>
+                    <div style="display:flex; gap:3px">
+                      <sc-for list="{{ detail.weeks }}" as="week" hint-placeholder-count="12">
+                        <div style="display:flex; flex-direction:column; gap:3px">
+                          <sc-for list="{{ week.days }}" as="day" hint-placeholder-count="7">
+                            <span style="width:14px; height:14px; border-radius:3px; background: {{ day.bg }}"></span>
+                          </sc-for>
+                        </div>
+                      </sc-for>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; margin-top:14px; font-family:'JetBrains Mono',monospace; font-size:10px; color:#3f3f46">
+                      <span>less</span>
+                      <span style="width:11px; height:11px; border-radius:2px; background:#111113"></span>
+                      <span style="width:11px; height:11px; border-radius:2px; background:#18181b"></span>
+                      <span style="width:11px; height:11px; border-radius:2px; background: {{ detail.softFill }}"></span>
+                      <span style="width:11px; height:11px; border-radius:2px; background: {{ detail.color }}"></span>
+                      <span>more</span>
+                    </div>
+                  </div>
+                  <div style="border:1px solid #18181b; border-radius:16px; background:rgba(17,17,19,0.4); padding:20px">
+                    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b; margin-bottom:12px">Recent</div>
+                    <sc-for list="{{ detail.log }}" as="row" hint-placeholder-count="5">
+                      <div style="display:flex; align-items:center; gap:12px; padding:7px 0; border-bottom:1px solid rgba(24,24,27,0.6)">
+                        <span style="width:16px; height:16px; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:10px; font-weight:700; line-height:1; background: {{ row.bg }}; color: {{ row.fg }}">{{ row.mark }}</span>
+                        <span style="flex:1; font-size:13px; color:#a1a1aa">{{ row.date }}</span>
+                        <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#3f3f46">{{ row.note }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </main>
+      </div>
+
+      <div style="flex:none; width:390px; height:844px; overflow:hidden; position:relative; border:1px solid #27272a; border-radius:32px; background:#0a0a0b">
+        <div style="position:absolute; top:0; left:0; right:0; height:48px; z-index:3; display:flex; align-items:center; justify-content:space-between; padding:0 16px; background:rgba(10,10,11,0.95); border-bottom:1px solid rgba(24,24,27,0.8)">
+          <button style="display:flex; align-items:center; gap:6px; background:transparent; border:0; font-family:'JetBrains Mono',monospace; font-size:12px; color:#71717a; cursor:pointer"><i data-lucide="arrow-left" style="width:16px;height:16px"></i>Habits</button>
+          <button style="background:transparent; border:0; color:#71717a; cursor:pointer"><i data-lucide="more-vertical" style="width:18px;height:18px"></i></button>
+        </div>
+        <div style="position:absolute; inset:48px 0 56px 0; overflow:hidden; padding:16px">
+          <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px">
+            <span style="width:9px; height:9px; border-radius:999px; flex-shrink:0; background: {{ detail.color }}"></span>
+            <h1 style="margin:0; font-size:22px; font-weight:600; letter-spacing:-0.02em; color:#fafafa">{{ detail.name }}</h1>
+          </div>
+          <div style="display:flex; align-items:center; gap:6px; margin-bottom:14px">
+            <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; padding:3px 10px; border-radius:999px; border:1px solid; background: {{ detail.softBg }}; border-color: {{ detail.softBorder }}; color: {{ detail.color }}">{{ detail.catLabel }}</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.08em; padding:3px 10px; border-radius:999px; border:1px solid #27272a; color:#71717a">{{ detail.cadence }}</span>
+          </div>
+          <button onClick="{{ detail.toggleToday }}" style="width:100%; min-height:48px; margin-bottom:14px; border-radius:12px; font-size:15px; font-weight:500; cursor:pointer; border:1px solid; background: {{ detail.todayBtnBg }}; border-color: {{ detail.todayBtnBorder }}; color: {{ detail.todayBtnFg }}">{{ detail.todayBtnLabel }}</button>
+          <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px">
+            <sc-for list="{{ detail.statsMobile }}" as="stat" hint-placeholder-count="3">
+              <div style="border:1px solid #18181b; border-radius:10px; background:rgba(17,17,19,0.4); padding:10px">
+                <div style="font-family:'JetBrains Mono',monospace; font-size:9px; text-transform:uppercase; letter-spacing:0.15em; color:#52525b; margin-bottom:4px">{{ stat.label }}</div>
+                <div style="font-size:20px; font-weight:600; white-space:nowrap; color: {{ stat.color }}">{{ stat.value }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px">
+            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.25em; color:#52525b">Calendar</div>
+            <div style="display:flex; align-items:center; gap:6px">
+              <button onClick="{{ detail.prevMonth }}" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:1px solid #18181b; border-radius:8px; background:transparent; color:#71717a; cursor:pointer"><i data-lucide="chevron-left" style="width:14px;height:14px"></i></button>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#d4d4d8; width:104px; text-align:center; white-space:nowrap">{{ detail.monthLabel }}</span>
+              <button onClick="{{ detail.nextMonth }}" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; border:1px solid #18181b; border-radius:8px; background:transparent; color:#71717a; cursor:pointer"><i data-lucide="chevron-right" style="width:14px;height:14px"></i></button>
+            </div>
+          </div>
+          <div style="border:1px solid #18181b; border-radius:14px; background:rgba(17,17,19,0.4); padding:12px">
+            <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px">
+              <sc-for list="{{ detail.dayNames }}" as="d" hint-placeholder-count="7">
+                <div style="text-align:center; font-family:'JetBrains Mono',monospace; font-size:9px; color:#3f3f46">{{ d.label }}</div>
+              </sc-for>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(7,1fr); gap:4px">
+              <sc-for list="{{ detail.monthCells }}" as="cell" hint-placeholder-count="35">
+                <button onClick="{{ cell.toggle }}" style="height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:12px; cursor:pointer; border:1px solid; background: {{ cell.bg }}; border-color: {{ cell.border }}; color: {{ cell.fg }}">{{ cell.label }}</button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+        <nav style="position:absolute; bottom:0; left:0; right:0; z-index:3; display:flex; align-items:stretch; border-top:1px solid rgba(24,24,27,0.8); background:rgba(10,10,11,0.95); padding-bottom:4px">
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#52525b"><i data-lucide="layout-dashboard" style="width:18px;height:18px"></i><span>Today</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#52525b"><i data-lucide="folder-kanban" style="width:18px;height:18px"></i><span>Projects</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#f59e0b"><i data-lucide="repeat" style="width:18px;height:18px"></i><span>Habits</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#52525b"><i data-lucide="inbox" style="width:18px;height:18px"></i><span>Inbox</span></div>
+          <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:6px 0; font-size:11px; font-weight:500; color:#52525b"><i data-lucide="calendar-days" style="width:18px;height:18px"></i><span>Plan</span></div>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const CATS = {
+  health: { label: "Health", rgb: "16,185,129" },
+  mind: { label: "Mind", rgb: "139,92,246" },
+  home: { label: "Home", rgb: "14,165,233" },
+};
+
+const HABITS = [
+  { id: "move", name: "Move 30 minutes", cat: "health", cadence: "daily", streak: 24, best: 41, rate: 0.86, total: 214, due: true },
+  { id: "strength", name: "Strength session", cat: "health", cadence: "3× / week", streak: 6, best: 14, rate: 0.71, total: 78, due: true },
+  { id: "lights", name: "Lights out by 11", cat: "health", cadence: "daily", streak: 3, best: 19, rate: 0.54, total: 132, due: true },
+  { id: "read", name: "Read 20 pages", cat: "mind", cadence: "daily", streak: 41, best: 41, rate: 0.93, total: 236, due: true },
+  { id: "journal", name: "Journal", cat: "mind", cadence: "weekdays", streak: 12, best: 22, rate: 0.78, total: 118, due: true },
+  { id: "phone", name: "No phone first hour", cat: "mind", cadence: "daily", streak: 0, best: 9, rate: 0.38, total: 61, due: true },
+  { id: "kitchen", name: "Tidy the kitchen", cat: "home", cadence: "daily", streak: 9, best: 31, rate: 0.81, total: 198, due: true },
+  { id: "laundry", name: "Laundry", cat: "home", cadence: "weekly", streak: 5, best: 11, rate: 0.9, total: 34, due: false },
+];
+
+const CADENCES = ["daily", "weekdays", "3× / week", "weekly"];
+const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
+const TODAY = { y: 2026, m: 7, d: 31 };
+
+function seeded(str) {
+  let s = 0;
+  for (let i = 0; i < str.length; i++) s = (s * 31 + str.charCodeAt(i)) % 2147483647;
+  s = s || 7;
+  return () => (s = (s * 16807) % 2147483647) / 2147483647;
+}
+
+function applies(cadence, weekdayMonFirst) {
+  if (cadence === "weekly") return weekdayMonFirst === 6;
+  if (cadence === "weekdays") return weekdayMonFirst < 5;
+  if (cadence === "3× / week") return weekdayMonFirst % 2 === 0;
+  return true;
+}
+
+class Component extends DCLogic {
+  state = {
+    cat: "all",
+    cadence: "all",
+    done: { move: true, read: true, kitchen: true },
+    form: { name: "", cat: "health", cadence: "daily", days: [0, 1, 2, 3, 4, 5, 6] },
+    month: { y: 2026, m: 7 },
+    overrides: {},
+  };
+
+  componentDidMount() { this.icons(); }
+  componentDidUpdate() { this.icons(); }
+  icons() {
+    const run = () => { if (window.lucide) window.lucide.createIcons(); };
+    run();
+    setTimeout(run, 300);
+    setTimeout(run, 1200);
+  }
+
+  toggle(id) { this.setState((s) => ({ done: { ...s.done, [id]: !s.done[id] } })); }
+
+  chip(active, label, pick) {
+    return { label, bg: active ? "#27272a" : "transparent", fg: active ? "#fafafa" : "#52525b", pick };
+  }
+
+  decorate(h) {
+    const rgb = CATS[h.cat].rgb;
+    const color = "rgb(" + rgb + ")";
+    const done = !!this.state.done[h.id];
+    return {
+      id: h.id, name: h.name, cadence: h.cadence, catLabel: CATS[h.cat].label, color,
+      streakLabel: h.streak > 0 ? h.streak + "d" : "—",
+      streakColor: h.streak > 0 ? color : "#3f3f46",
+      done, mark: done ? "✓" : "",
+      checkBg: done ? color : "transparent",
+      checkBorder: done ? "transparent" : "#3f3f46",
+      checkFg: "#0a0a0b",
+      nameColor: done ? "#71717a" : "#e4e4e7",
+      toggle: () => this.toggle(h.id),
+    };
+  }
+
+  monthGrid(habit, color) {
+    const { y, m } = this.state.month;
+    const first = new Date(y, m, 1);
+    const lead = (first.getDay() + 6) % 7;
+    const days = new Date(y, m + 1, 0).getDate();
+    const rnd = seeded(habit.id + y + "-" + m);
+    const cells = [];
+    for (let i = 0; i < lead; i++) cells.push({ label: "", bg: "transparent", border: "transparent", fg: "transparent", toggle: () => {} });
+    for (let d = 1; d <= days; d++) {
+      const wd = (new Date(y, m, d).getDay() + 6) % 7;
+      const future = y > TODAY.y || (y === TODAY.y && (m > TODAY.m || (m === TODAY.m && d > TODAY.d)));
+      const isToday = y === TODAY.y && m === TODAY.m && d === TODAY.d;
+      const key = y + "-" + m + "-" + d;
+      const on = applies(habit.cadence, wd);
+      let hit = !future && on && rnd() < habit.rate;
+      if (this.state.overrides[key] != null) hit = this.state.overrides[key];
+      let bg = "transparent", fg = "#52525b", border = "#18181b";
+      if (hit) { bg = color; fg = "#0a0a0b"; border = "transparent"; }
+      else if (future) { bg = "transparent"; fg = "#3f3f46"; border = "rgba(24,24,27,0.6)"; }
+      else if (!on) { bg = "#111113"; fg = "#3f3f46"; }
+      else { bg = "#18181b"; fg = "#71717a"; }
+      if (isToday && !hit) border = "#52525b";
+      cells.push({
+        label: String(d), bg, fg, border,
+        toggle: () => this.setState((s) => ({ overrides: { ...s.overrides, [key]: !hit } })),
+      });
+    }
+    return cells;
+  }
+
+  heat(h, color) {
+    const rnd = seeded(h.id + "heat");
+    const weeks = [];
+    for (let w = 0; w < 12; w++) {
+      const days = [];
+      for (let d = 0; d < 7; d++) {
+        const future = w === 11 && d > 0;
+        const on = applies(h.cadence, d);
+        let bg;
+        if (future) bg = "rgba(17,17,19,0.6)";
+        else if (!on) bg = "#111113";
+        else bg = rnd() < h.rate ? color : "#18181b";
+        days.push({ bg });
+      }
+      weeks.push({ days });
+    }
+    return weeks;
+  }
+
+  formVals() {
+    const f = this.state.form;
+    const pill = (active, rgb) => ({
+      bg: active ? "rgba(" + rgb + ",0.15)" : "transparent",
+      border: active ? "rgba(" + rgb + ",0.4)" : "#27272a",
+      fg: active ? "rgb(" + rgb + ")" : "#a1a1aa",
+    });
+    const set = (patch) => this.setState((s) => ({ form: { ...s.form, ...patch } }));
+    const presetDays = { daily: [0, 1, 2, 3, 4, 5, 6], weekdays: [0, 1, 2, 3, 4], "3× / week": [0, 2, 4], weekly: [6] };
+    return {
+      name: f.name,
+      setName: (e) => set({ name: e.target.value }),
+      catOptions: Object.keys(CATS).map((k) => {
+        const p = pill(f.cat === k, CATS[k].rgb);
+        return { label: CATS[k].label, dot: "rgb(" + CATS[k].rgb + ")", bg: p.bg, border: p.border, fg: p.fg, pick: () => set({ cat: k }) };
+      }),
+      cadenceOptions: CADENCES.map((c) => {
+        const p = pill(f.cadence === c, "245,158,11");
+        return { label: c === "3× / week" ? "3×/wk" : c, bg: p.bg, border: p.border, fg: p.fg, pick: () => set({ cadence: c, days: presetDays[c] }) };
+      }),
+      dayButtons: DAY_LABELS.map((l, i) => {
+        const p = pill(f.days.includes(i), "245,158,11");
+        return {
+          label: l, bg: p.bg, border: p.border, fg: p.fg,
+          toggle: () => set({ days: f.days.includes(i) ? f.days.filter((x) => x !== i) : [...f.days, i].sort() }),
+        };
+      }),
+      presets: [
+        { label: "weekdays", pick: () => set({ days: [0, 1, 2, 3, 4] }) },
+        { label: "weekend", pick: () => set({ days: [5, 6] }) },
+        { label: "daily", pick: () => set({ days: [0, 1, 2, 3, 4, 5, 6] }) },
+        { label: "clear", pick: () => set({ days: [] }) },
+      ],
+      saveOpacity: f.name.trim() && f.days.length ? 1 : 0.4,
+      mobileSaveColor: f.name.trim() && f.days.length ? "#f59e0b" : "#3f3f46",
+    };
+  }
+
+  detailVals() {
+    const h = HABITS[0];
+    const rgb = CATS[h.cat].rgb;
+    const color = "rgb(" + rgb + ")";
+    const key = TODAY.y + "-" + TODAY.m + "-" + TODAY.d;
+    const doneToday = this.state.overrides[key] != null ? this.state.overrides[key] : !!this.state.done[h.id];
+    const monthLabel = new Intl.DateTimeFormat("en-US", { month: "long", year: "numeric" }).format(
+      new Date(this.state.month.y, this.state.month.m, 1)
+    );
+    const stats = [
+      { label: "Current", value: h.streak, unit: "days", color },
+      { label: "Longest", value: h.best, unit: "days", color: "#e4e4e7" },
+      { label: "30-day", value: Math.round(h.rate * 100) + "%", unit: "kept", color: "#e4e4e7" },
+      { label: "Total", value: h.total, unit: "check-ins", color: "#e4e4e7" },
+    ];
+    const log = [
+      { date: "Sunday, August 30", note: "kept", done: true },
+      { date: "Saturday, August 29", note: "kept", done: true },
+      { date: "Friday, August 28", note: "missed", done: false },
+      { date: "Thursday, August 27", note: "kept", done: true },
+      { date: "Wednesday, August 26", note: "kept", done: true },
+    ].map((r) => ({
+      date: r.date, note: r.note, mark: r.done ? "✓" : "",
+      bg: r.done ? color : "#18181b", fg: "#0a0a0b",
+    }));
+    return {
+      name: h.name, catLabel: CATS[h.cat].label, cadence: h.cadence, color,
+      softBg: "rgba(" + rgb + ",0.1)", softBorder: "rgba(" + rgb + ",0.2)",
+      softFill: "rgba(" + rgb + ",0.45)",
+      stats, statsMobile: stats.slice(0, 3), log,
+      monthLabel,
+      dayNames: DAY_LABELS.map((l) => ({ label: l })),
+      monthCells: this.monthGrid(h, color),
+      weeks: this.heat(h, color),
+      prevMonth: () => this.setState((s) => ({ month: s.month.m === 0 ? { y: s.month.y - 1, m: 11 } : { y: s.month.y, m: s.month.m - 1 } })),
+      nextMonth: () => this.setState((s) => ({ month: s.month.m === 11 ? { y: s.month.y + 1, m: 0 } : { y: s.month.y, m: s.month.m + 1 } })),
+      toggleToday: () => this.setState((s) => ({ overrides: { ...s.overrides, [key]: !doneToday } })),
+      todayBtnLabel: doneToday ? "Done today" : "Mark done today",
+      todayBtnBg: doneToday ? "rgba(" + rgb + ",0.15)" : "#fafafa",
+      todayBtnBorder: doneToday ? "rgba(" + rgb + ",0.4)" : "transparent",
+      todayBtnFg: doneToday ? color : "#0a0a0b",
+    };
+  }
+
+  renderVals() {
+    const { cat, cadence } = this.state;
+    const list = HABITS.filter(
+      (h) => (cat === "all" || h.cat === cat) && (cadence === "all" || h.cadence === cadence)
+    );
+    const decorated = list.map((h) => this.decorate(h));
+    const dueItems = decorated.filter((d, i) => list[i].due);
+    const groups = Object.keys(CATS)
+      .map((k) => ({
+        label: CATS[k].label,
+        color: "rgb(" + CATS[k].rgb + ")",
+        items: dueItems.filter((d) => d.catLabel === CATS[k].label),
+      }))
+      .filter((g) => g.items.length)
+      .map((g) => ({ ...g, count: g.items.length }));
+
+    const weekRows = decorated.slice(0, 6).map((d) => {
+      const rnd = seeded(d.id + "wk");
+      const cells = [];
+      for (let i = 0; i < 7; i++) cells.push({ bg: i > 4 ? "rgba(17,17,19,0.6)" : rnd() < 0.75 ? d.color : "#18181b" });
+      return { name: d.name, cells };
+    });
+
+    const consistency = Object.keys(CATS).map((k) => {
+      const items = HABITS.filter((h) => h.cat === k);
+      const pct = Math.round((items.reduce((a, h) => a + h.rate, 0) / items.length) * 100);
+      return { label: CATS[k].label, pct, width: pct + "%", color: "rgb(" + CATS[k].rgb + ")" };
+    });
+
+    const catChips = [
+      this.chip(cat === "all", "all", () => this.setState({ cat: "all" })),
+      ...Object.keys(CATS).map((k) => this.chip(cat === k, CATS[k].label, () => this.setState({ cat: k }))),
+    ];
+    const cadChips = [
+      this.chip(cadence === "all", "any cadence", () => this.setState({ cadence: "all" })),
+      ...CADENCES.map((c) => this.chip(cadence === c, c, () => this.setState({ cadence: c }))),
+    ];
+
+    return {
+      catChips, cadChips,
+      cadChipsMobile: [
+        this.chip(cadence === "all", "any", () => this.setState({ cadence: "all" })),
+        ...CADENCES.map((c) => this.chip(cadence === c, c === "3× / week" ? "3×/wk" : c, () => this.setState({ cadence: c }))),
+      ],
+      groups, weekRows, consistency,
+      filteredCount: decorated.length,
+      dueCount: dueItems.length,
+      openCount: dueItems.filter((d) => !d.done).length,
+      doneToday: dueItems.filter((d) => d.done).length,
+      bestStreak: HABITS.reduce((a, h) => Math.max(a, h.streak), 0),
+      form: this.formVals(),
+      detail: this.detailVals(),
+    };
+  }
+}
+</script>
+</body>
+</html>

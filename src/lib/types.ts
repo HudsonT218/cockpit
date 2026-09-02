@@ -172,3 +172,44 @@ export interface HabitCompletion {
   note?: string;
   createdAt: string;
 }
+
+// ---- Life habits (standalone; not Learning's daily_habits) ----
+// Learning already owns `HabitCadence` (mon_thu, etc.). This module's
+// cadence set is different, so it gets its own type.
+export type LifeHabitCadence =
+  | "daily"
+  | "weekdays"
+  | "weekly"
+  | "monthly"
+  | "custom";
+
+export interface HabitCategory {
+  id: string;
+  name: string;
+  slug: string;
+  accent: TrackAccent;
+  orderIndex: number;
+  createdAt: string;
+}
+
+export interface Habit {
+  id: string;
+  categoryId?: string;
+  name: string;
+  why?: string;
+  cadence: LifeHabitCadence;
+  daysOfWeek: number[]; // 0=Sun..6=Sat
+  timesPerWeek?: number;
+  reminderAt?: string; // HH:MM
+  startedOn: string; // YYYY-MM-DD
+  archived: boolean;
+  orderIndex: number;
+  createdAt: string;
+}
+
+export interface HabitLog {
+  id: string;
+  habitId: string;
+  completedOn: string; // YYYY-MM-DD
+  createdAt: string;
+}

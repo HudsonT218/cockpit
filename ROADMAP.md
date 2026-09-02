@@ -13,6 +13,7 @@
 - Day Planner (single-day focus, task pool with carryover + inbox + by-project, time-grid, now-line)
 - Shipped wall
 - Command palette (⌘K)
+- Habits (standalone life habits: categories, cadence, due-today checklist, streaks, month calendar, 12-week strip)
 
 **Auth + Backend**
 - Supabase schema (8 tables, RLS, indexes, triggers, auto-profile)
